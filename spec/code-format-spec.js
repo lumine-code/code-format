@@ -65,7 +65,7 @@ describe("code-format", () => {
     it("applies file-provider edits bottom-up as a single undo step", async () => {
       // The first edit changes the line length; only a bottom-up application
       // inside one transaction leaves both target ranges valid.
-      addProvider("consumeFileProvider", {
+      addProvider("consumeCodeFormatFile", {
         formatEntireFile: () =>
           Promise.resolve([
             {
@@ -93,7 +93,7 @@ describe("code-format", () => {
     it("formats only the selection through a range provider", async () => {
       editor.setText("aaa bbb ccc\n");
       let receivedRange = null;
-      addProvider("consumeRangeProvider", {
+      addProvider("consumeCodeFormatRange", {
         formatCode: (item, range) => {
           receivedRange = range.copy();
           return Promise.resolve([
@@ -129,8 +129,8 @@ describe("code-format", () => {
           newText: "def",
         },
       ]);
-      addProvider("consumeFileProvider", { priority: 1, formatEntireFile: low });
-      addProvider("consumeFileProvider", { priority: 2, formatEntireFile: high });
+      addProvider("consumeCodeFormatFile", { priority: 1, formatEntireFile: low });
+      addProvider("consumeCodeFormatFile", { priority: 2, formatEntireFile: high });
       await dispatch("code-format:format-code");
       expect(high).toHaveBeenCalled();
       expect(low).not.toHaveBeenCalled();
@@ -140,7 +140,7 @@ describe("code-format", () => {
     it("discards stale edits and retries once when the buffer changes mid-format", async () => {
       let calls = 0;
       const resolvers = [];
-      addProvider("consumeFileProvider", {
+      addProvider("consumeCodeFormatFile", {
         formatEntireFile: () => {
           calls++;
           return new Promise((resolve) => resolvers.push(resolve));

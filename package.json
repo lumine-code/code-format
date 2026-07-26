@@ -29,12 +29,12 @@
   "consumedServices": {
     "code-format.range": {
       "versions": {
-        "^1.0.0": "consumeRangeProvider"
+        "^1.0.0": "consumeCodeFormatRange"
       }
     },
     "code-format.file": {
       "versions": {
-        "^1.0.0": "consumeFileProvider"
+        "^1.0.0": "consumeCodeFormatFile"
       }
     },
     "code-format.onType": {

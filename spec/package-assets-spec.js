@@ -43,9 +43,11 @@ describe("code-format package assets", () => {
   it("consumes the four code-format services at ^1.0.0", () => {
     const pkg = JSON.parse(read("package.json"));
     expect(pkg.consumedServices["code-format.range"].versions["^1.0.0"]).toBe(
-      "consumeRangeProvider",
+      "consumeCodeFormatRange",
     );
-    expect(pkg.consumedServices["code-format.file"].versions["^1.0.0"]).toBe("consumeFileProvider");
+    expect(pkg.consumedServices["code-format.file"].versions["^1.0.0"]).toBe(
+      "consumeCodeFormatFile",
+    );
     expect(pkg.consumedServices["code-format.onType"].versions["^1.0.0"]).toBe(
       "consumeOnTypeProvider",
     );
