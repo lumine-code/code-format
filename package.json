@@ -1,0 +1,79 @@
+{
+  "name": "code-format",
+  "author": "lumine-code",
+  "description": "Format code on demand or on save using registered providers.",
+  "repository": "https://github.com/lumine-code/code-format",
+  "bugs": {
+    "url": "https://github.com/lumine-code/code-format/issues"
+  },
+  "keywords": [
+    "beautify",
+    "prettify",
+    "reformat",
+    "on-save",
+    "tidy",
+    "lsp"
+  ],
+  "version": "1.0.0",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.100.0 <2.0.0"
+  },
+  "main": "./lib/main",
+  "scripts": {
+    "test": "cd ../lumine && npm run test:only -- ../code-format/spec",
+    "lint": "eslint . --max-warnings 0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "consumedServices": {
+    "code-format.range": {
+      "versions": {
+        "^1.0.0": "consumeRangeProvider"
+      }
+    },
+    "code-format.file": {
+      "versions": {
+        "^1.0.0": "consumeFileProvider"
+      }
+    },
+    "code-format.onType": {
+      "versions": {
+        "^1.0.0": "consumeOnTypeProvider"
+      }
+    },
+    "code-format.onSave": {
+      "versions": {
+        "^1.0.0": "consumeOnSaveProvider"
+      }
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.8.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-n": "^18.2.2",
+    "globals": "^17.7.0",
+    "prettier": "^3.9.6"
+  },
+  "configSchema": {
+    "formatOnSave": {
+      "title": "Format On Save",
+      "description": "Format the buffer with the registered on-save providers whenever it is saved. Read per language, so it can be enabled for selected grammars only via scoped settings.",
+      "type": "boolean",
+      "default": false
+    },
+    "formatOnType": {
+      "title": "Format On Type",
+      "description": "Format around the cursor as you type. Read per language, so it can be enabled for selected grammars only via scoped settings.",
+      "type": "boolean",
+      "default": false
+    },
+    "useAllProviders": {
+      "title": "Use All Providers",
+      "description": "Run every matching provider in priority order as a pipeline, each one formatting the output of the last. When disabled, only the highest-priority provider runs.",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

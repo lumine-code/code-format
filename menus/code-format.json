@@ -1,0 +1,10 @@
+{
+  "context-menu": {
+    "atom-text-editor:not([mini])": [
+      {
+        "label": "Format Code",
+        "command": "code-format:format-code"
+      }
+    ]
+  }
+}
