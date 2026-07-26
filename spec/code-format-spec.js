@@ -61,6 +61,32 @@ describe("code-format", () => {
     return provider;
   }
 
+  describe("activation", () => {
+    it("watches editors that are already open when the package activates", async () => {
+      // observeTextEditors fires synchronously for the existing editor while
+      // the manager is still constructing.
+      await atom.packages.deactivatePackage("code-format");
+      const pack = await atom.packages.activatePackage(packageRoot);
+      mainModule = pack.mainModule;
+
+      atom.config.set("code-format.formatOnSave", true, { scopeSelector: `.${scopeName()}` });
+      addProvider("consumeCodeFormatOnSave", {
+        formatOnSave: () =>
+          Promise.resolve([
+            {
+              oldRange: [
+                [0, 0],
+                [0, 3],
+              ],
+              newText: "def",
+            },
+          ]),
+      });
+      await editor.save();
+      expect(editor.getText()).toBe("def\n");
+    });
+  });
+
   describe("the format-code command", () => {
     it("applies file-provider edits bottom-up as a single undo step", async () => {
       // The first edit changes the line length; only a bottom-up application
