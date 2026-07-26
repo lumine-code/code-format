@@ -186,7 +186,7 @@ describe("code-format", () => {
       // Enabled only for this grammar; the global default stays off.
       atom.config.set("code-format.formatOnSave", true, { scopeSelector: `.${scopeName()}` });
       expect(atom.config.get("code-format.formatOnSave")).toBe(false);
-      addProvider("consumeOnSaveProvider", {
+      addProvider("consumeCodeFormatOnSave", {
         formatOnSave: () =>
           Promise.resolve([
             {
@@ -205,7 +205,7 @@ describe("code-format", () => {
 
     it("lets the save proceed unformatted when the provider misses the timeout", async () => {
       atom.config.set("code-format.formatOnSave", true, { scopeSelector: `.${scopeName()}` });
-      addProvider("consumeOnSaveProvider", {
+      addProvider("consumeCodeFormatOnSave", {
         formatOnSave: () => new Promise(() => {}),
       });
       const start = Date.now();
@@ -224,7 +224,7 @@ describe("code-format", () => {
       const typeEditor = await atom.workspace.open(typePath);
 
       let receivedCharacter = null;
-      addProvider("consumeOnTypeProvider", {
+      addProvider("consumeCodeFormatOnType", {
         keepCursorPosition: false,
         formatAtPosition: (item, position, character) => {
           receivedCharacter = character;

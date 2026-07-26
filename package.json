@@ -37,14 +37,14 @@
         "^1.0.0": "consumeCodeFormatFile"
       }
     },
-    "code-format.onType": {
+    "code-format.on-type": {
       "versions": {
-        "^1.0.0": "consumeOnTypeProvider"
+        "^1.0.0": "consumeCodeFormatOnType"
       }
     },
-    "code-format.onSave": {
+    "code-format.on-save": {
       "versions": {
-        "^1.0.0": "consumeOnSaveProvider"
+        "^1.0.0": "consumeCodeFormatOnSave"
       }
     }
   },

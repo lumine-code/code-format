@@ -48,11 +48,11 @@ describe("code-format package assets", () => {
     expect(pkg.consumedServices["code-format.file"].versions["^1.0.0"]).toBe(
       "consumeCodeFormatFile",
     );
-    expect(pkg.consumedServices["code-format.onType"].versions["^1.0.0"]).toBe(
-      "consumeOnTypeProvider",
+    expect(pkg.consumedServices["code-format.on-type"].versions["^1.0.0"]).toBe(
+      "consumeCodeFormatOnType",
     );
-    expect(pkg.consumedServices["code-format.onSave"].versions["^1.0.0"]).toBe(
-      "consumeOnSaveProvider",
+    expect(pkg.consumedServices["code-format.on-save"].versions["^1.0.0"]).toBe(
+      "consumeCodeFormatOnSave",
     );
     expect(pkg.providedServices).toBeUndefined();
   });
