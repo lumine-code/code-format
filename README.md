@@ -43,10 +43,10 @@ The `formatOnSave` and `formatOnType` settings are read per language, so they ca
 
 ## Services
 
-- **code-format.range** (`^1.0.0`): consumed to format a selected range of the buffer.
-- **code-format.file** (`^1.0.0`): consumed to format the whole buffer at once.
-- **code-format.on-type** (`^1.0.0`): consumed to format around the cursor as you type.
-- **code-format.on-save** (`^1.0.0`): consumed to format the buffer when it is saved.
+- **[code-format.range](docs/code-format.range.md)** (`^1.0.0`): consumed to format a selected range of the buffer.
+- **[code-format.file](docs/code-format.file.md)** (`^1.0.0`): consumed to format the whole buffer at once.
+- **[code-format.on-type](docs/code-format.on-type.md)** (`^1.0.0`): consumed to format around the cursor as you type.
+- **[code-format.on-save](docs/code-format.on-save.md)** (`^1.0.0`): consumed to format the buffer when it is saved.
 
 ## Contributing
 
