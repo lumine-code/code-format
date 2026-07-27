@@ -11,7 +11,7 @@ Reformats as the user types, when a trigger character lands.
 
 The one sibling that runs without the user asking, so it is also the one with the strictest requirements: it must be fast, it must be conservative, and it must not fight the cursor.
 
-A language server reaches this through an [`ide-client`](https://lumine-code.github.io/docs.html#services/ide-client) adapter.
+A language server reaches this through an `ide-client` adapter.
 
 ## Registration
 

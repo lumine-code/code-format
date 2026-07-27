@@ -11,7 +11,7 @@ Formats a selected range and returns the edits.
 
 One of four sibling services that differ only in when they are called and what they are handed: [`code-format.file`](code-format.file.md) for the whole buffer, [`code-format.on-type`](code-format.on-type.md) for a trigger character, and [`code-format.on-save`](code-format.on-save.md) for save. A package may provide any subset.
 
-A language server reaches all four through an [`ide-client`](https://lumine-code.github.io/docs.html#services/ide-client) adapter; implement these directly only for a formatter that is not a language server.
+A language server reaches all four through an `ide-client` adapter; implement these directly only for a formatter that is not a language server.
 
 ## Registration
 

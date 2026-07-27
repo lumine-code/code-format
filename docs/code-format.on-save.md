@@ -11,7 +11,7 @@ Reformats a buffer as it is saved.
 
 Distinct from [`code-format.file`](code-format.file.md) even though both format the whole buffer: this one is invoked by the save itself, so a formatter that should run on save without also being the manual formatter provides this and not that.
 
-A language server reaches this through an [`ide-client`](https://lumine-code.github.io/docs.html#services/ide-client) adapter.
+A language server reaches this through an `ide-client` adapter.
 
 ## Registration
 

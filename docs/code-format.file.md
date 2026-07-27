@@ -11,7 +11,7 @@ Formats a whole buffer and returns the edits.
 
 The whole-buffer sibling of [`code-format.range`](code-format.range.md). Provide this when your formatter needs the entire file to produce correct output — most do, since imports, indentation, and line wrapping depend on context outside any selection.
 
-A language server reaches this through an [`ide-client`](https://lumine-code.github.io/docs.html#services/ide-client) adapter.
+A language server reaches this through an `ide-client` adapter.
 
 ## Registration
 
