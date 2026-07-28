@@ -37,7 +37,7 @@ describe("code-format package assets", () => {
     expect(pkg.bugs.url).toBe("https://github.com/lumine-code/code-format/issues");
     expect(pkg.main).toBe("./lib/main");
     expect(pkg.description).toBe("Format code on demand or on save using registered providers.");
-    expect(read("README.md").split("\n")[2]).toBe(pkg.description);
+    expect(read("README.md").split(/\r?\n/)[2]).toBe(pkg.description);
   });
 
   it("consumes the four code-format services at ^1.0.0", () => {
