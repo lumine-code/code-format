@@ -23,6 +23,13 @@
     "You can format the current file with any registered formatter using {{ 'code-format:format-code' | keystroke }}"
   ],
   "main": "./lib/main",
+  "files": [
+    "docs",
+    "keymaps",
+    "lib",
+    "menus",
+    "spec"
+  ],
   "scripts": {
     "test": "lumine --test spec",
     "lint": "eslint . --max-warnings 0",
