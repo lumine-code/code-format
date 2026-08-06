@@ -42,7 +42,10 @@ describe("code-format", () => {
     for (const disposable of disposables) disposable.dispose();
     await atom.packages.deactivatePackage("code-format");
     for (const item of atom.workspace.getTextEditors()) item.destroy();
-    fs.rmSync(tempDir, { recursive: true, force: true });
+    // Retries because destroying an editor tears its file watcher down
+    // asynchronously, and Windows keeps a directory non-empty until the last
+    // handle on a child closes -- `force` only swallows ENOENT, not ENOTEMPTY.
+    fs.rmSync(tempDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
   });
 
   const scopeName = () => editor.getGrammar().scopeName;
