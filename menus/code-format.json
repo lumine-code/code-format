@@ -2,8 +2,14 @@
   "context-menu": {
     "atom-text-editor:not([mini])": [
       {
+        "type": "separator"
+      },
+      {
         "label": "Format Code",
         "command": "code-format:format-code"
+      },
+      {
+        "type": "separator"
       }
     ]
   }
