@@ -18,7 +18,7 @@ describe("code-format package assets", () => {
 
     // The pure cmd/ctrl platform split collapses into one cmdorctrl binding.
     const keymap = JSON.parse(read("keymaps/code-format.json"));
-    expect(keymap["atom-text-editor:not([mini])"]["cmdorctrl-alt-b"]).toBe(
+    expect(keymap["lumine-text-editor:not([mini])"]["cmdorctrl-alt-b"]).toBe(
       "code-format:format-code",
     );
 

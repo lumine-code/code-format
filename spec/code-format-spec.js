@@ -25,23 +25,23 @@ describe("code-format", () => {
 
   beforeEach(async () => {
     jasmine.useRealClock();
-    jasmine.attachToDOM(atom.views.getView(atom.workspace));
-    atom.notifications.clear();
+    jasmine.attachToDOM(lumine.views.getView(lumine.workspace));
+    lumine.notifications.clear();
 
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "code-format-spec-"));
     filePath = path.join(tempDir, "sample.txt");
     fs.writeFileSync(filePath, "abc\n");
 
-    const pack = await atom.packages.activatePackage(packageRoot);
+    const pack = await lumine.packages.activatePackage(packageRoot);
     mainModule = pack.mainModule;
-    editor = await atom.workspace.open(filePath);
+    editor = await lumine.workspace.open(filePath);
     disposables = [];
   });
 
   afterEach(async () => {
     for (const disposable of disposables) disposable.dispose();
-    await atom.packages.deactivatePackage("code-format");
-    for (const item of atom.workspace.getTextEditors()) item.destroy();
+    await lumine.packages.deactivatePackage("code-format");
+    for (const item of lumine.workspace.getTextEditors()) item.destroy();
     // Retries because destroying an editor tears its file watcher down
     // asynchronously, and Windows keeps a directory non-empty until the last
     // handle on a child closes -- `force` only swallows ENOENT, not ENOTEMPTY.
@@ -49,7 +49,7 @@ describe("code-format", () => {
   });
 
   const scopeName = () => editor.getGrammar().scopeName;
-  const dispatch = (command) => atom.commands.dispatch(atom.views.getView(editor), command);
+  const dispatch = (command) => lumine.commands.dispatch(lumine.views.getView(editor), command);
 
   function addProvider(consume, overrides = {}) {
     const provider = {
@@ -68,11 +68,11 @@ describe("code-format", () => {
     it("watches editors that are already open when the package activates", async () => {
       // observeTextEditors fires synchronously for the existing editor while
       // the manager is still constructing.
-      await atom.packages.deactivatePackage("code-format");
-      const pack = await atom.packages.activatePackage(packageRoot);
+      await lumine.packages.deactivatePackage("code-format");
+      const pack = await lumine.packages.activatePackage(packageRoot);
       mainModule = pack.mainModule;
 
-      atom.config.set("code-format.formatOnSave", true, { scopeSelector: `.${scopeName()}` });
+      lumine.config.set("code-format.formatOnSave", true, { scopeSelector: `.${scopeName()}` });
       addProvider("consumeCodeFormatOnSave", {
         formatOnSave: () =>
           Promise.resolve([
@@ -213,8 +213,8 @@ describe("code-format", () => {
   describe("format on save", () => {
     it("applies on-save edits before the buffer hits the disk, per-language scoped", async () => {
       // Enabled only for this grammar; the global default stays off.
-      atom.config.set("code-format.formatOnSave", true, { scopeSelector: `.${scopeName()}` });
-      expect(atom.config.get("code-format.formatOnSave")).toBe(false);
+      lumine.config.set("code-format.formatOnSave", true, { scopeSelector: `.${scopeName()}` });
+      expect(lumine.config.get("code-format.formatOnSave")).toBe(false);
       addProvider("consumeCodeFormatOnSave", {
         formatOnSave: () =>
           Promise.resolve([
@@ -233,7 +233,7 @@ describe("code-format", () => {
     });
 
     it("lets the save proceed unformatted when the provider misses the timeout", async () => {
-      atom.config.set("code-format.formatOnSave", true, { scopeSelector: `.${scopeName()}` });
+      lumine.config.set("code-format.formatOnSave", true, { scopeSelector: `.${scopeName()}` });
       addProvider("consumeCodeFormatOnSave", {
         formatOnSave: () => new Promise(() => {}),
       });
@@ -247,10 +247,10 @@ describe("code-format", () => {
 
   describe("format on type", () => {
     it("formats around the cursor after the buffer stops changing", async () => {
-      atom.config.set("code-format.formatOnType", true, { scopeSelector: `.${scopeName()}` });
+      lumine.config.set("code-format.formatOnType", true, { scopeSelector: `.${scopeName()}` });
       const typePath = path.join(tempDir, "ontype.txt");
       fs.writeFileSync(typePath, "");
-      const typeEditor = await atom.workspace.open(typePath);
+      const typeEditor = await lumine.workspace.open(typePath);
 
       let receivedCharacter = null;
       addProvider("consumeCodeFormatOnType", {

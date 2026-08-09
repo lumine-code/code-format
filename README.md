@@ -20,7 +20,7 @@ To install `code-format` search for _code-format_ in the Install pane of the Lum
 
 ## Commands
 
-Commands available in `atom-text-editor:not([mini])`:
+Commands available in `lumine-text-editor:not([mini])`:
 
 - `code-format:format-code`: format the selection, or the whole file when the selection is empty,
 - `code-format:list-providers`: show the formatters active in the current editor and the packages that provide them.
