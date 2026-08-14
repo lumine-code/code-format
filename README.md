@@ -16,7 +16,7 @@ The package is a hub: other packages register formatting providers through the `
 
 ## Installation
 
-To install `code-format` search for _code-format_ in the Install pane of the Lumine settings or run `lumine --install lumine-code/code-format`.
+To install `code-format` search for it in the Install pane of the Lumine settings, or run the command `lumine --install lumine-code/code-format`.
 
 ## Commands
 
@@ -43,10 +43,10 @@ The `formatOnSave` and `formatOnType` settings are read per language, so they ca
 
 ## Services
 
-- **[code-format.range](docs/code-format.range.md)** (`^1.0.0`): consumed to format a selected range of the buffer.
-- **[code-format.file](docs/code-format.file.md)** (`^1.0.0`): consumed to format the whole buffer at once.
-- **[code-format.on-type](docs/code-format.on-type.md)** (`^1.0.0`): consumed to format around the cursor as you type.
-- **[code-format.on-save](docs/code-format.on-save.md)** (`^1.0.0`): consumed to format the buffer when it is saved.
+- [`code-format.range`](docs/code-format.range.md): consumed to format a selected range of the buffer.
+- [`code-format.file`](docs/code-format.file.md): consumed to format the whole buffer at once.
+- [`code-format.on-type`](docs/code-format.on-type.md): consumed to format around the cursor as you type.
+- [`code-format.on-save`](docs/code-format.on-save.md): consumed to format the buffer when it is saved.
 
 ## Contributing
 
