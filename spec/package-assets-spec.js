@@ -11,18 +11,18 @@ const exists = (rel) => fs.existsSync(path.join(root, rel));
 // stylesheet are gone.
 describe("code-format package assets", () => {
   it("ships the keymap and menu as JSON under the code-format name", () => {
-    expect(exists("keymaps/code-format.json")).toBe(true);
-    expect(exists("menus/code-format.json")).toBe(true);
+    expect(exists("keymaps/main.json")).toBe(true);
+    expect(exists("menus/main.json")).toBe(true);
     expect(exists("keymaps/pulsar-code-format.json")).toBe(false);
     expect(exists("menus/pulsar-code-format.json")).toBe(false);
 
     // The pure cmd/ctrl platform split collapses into one cmdorctrl binding.
-    const keymap = JSON.parse(read("keymaps/code-format.json"));
+    const keymap = JSON.parse(read("keymaps/main.json"));
     expect(keymap["lumine-text-editor:not([mini])"]["cmdorctrl-alt-b"]).toBe(
       "code-format:format-code",
     );
 
-    const menu = JSON.parse(read("menus/code-format.json"));
+    const menu = JSON.parse(read("menus/main.json"));
     const flat = JSON.stringify(menu);
     expect(flat).toContain("Format Code");
     expect(flat).toContain("code-format:format-code");
