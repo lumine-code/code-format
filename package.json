@@ -70,12 +70,14 @@
     "formatOnSave": {
       "title": "Format On Save",
       "description": "Format the buffer with the registered on-save providers whenever it is saved. Read per language, so it can be enabled for selected grammars only via scoped settings.",
+      "scopeResolution": "grammar",
       "type": "boolean",
       "default": false
     },
     "formatOnType": {
       "title": "Format On Type",
       "description": "Format around the cursor as you type. Read per language, so it can be enabled for selected grammars only via scoped settings.",
+      "scopeResolution": "grammar",
       "type": "boolean",
       "default": false
     },
