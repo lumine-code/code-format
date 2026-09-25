@@ -40,7 +40,7 @@ describe("code-format package assets", () => {
     expect(read("README.md").split(/\r?\n/)[2]).toBe(pkg.description);
   });
 
-  it("consumes the four code-format services at ^1.0.0", () => {
+  it("consumes the four code-format services and provides background tips", () => {
     const pkg = JSON.parse(read("package.json"));
     expect(pkg.consumedServices["code-format.range"].versions["^1.0.0"]).toBe(
       "consumeCodeFormatRange",
@@ -54,7 +54,9 @@ describe("code-format package assets", () => {
     expect(pkg.consumedServices["code-format.on-save"].versions["^1.0.0"]).toBe(
       "consumeCodeFormatOnSave",
     );
-    expect(pkg.providedServices).toBeUndefined();
+    expect(pkg.providedServices["background-tips.provider"].versions["1.0.0"]).toBe(
+      "provideBackgroundTips",
+    );
   });
 
   it("keeps its settings in the code-format namespace without order keys", () => {
