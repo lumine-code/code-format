@@ -115,6 +115,17 @@ describe("validated complete format plans", () => {
     }
   });
 
+  it("uses buffer rows for standalone CR characters while translating selections", () => {
+    const source = "x=1\ry=2",
+      target = "x = 1\ry = 2";
+    editor.setText(source);
+    editor.setSelectedBufferRange(new Range([0, 4], [0, 5]));
+    applyEdits(editor, plan(source, target));
+    expect(editor.getText()).toBe(target);
+    expect(editor.getSelectedBufferRange()).toEqual(new Range([0, 6], [0, 8]));
+    expect(editor.getSelectedText()).toBe("y ");
+  });
+
   it("rejects overlap, invalid coordinates, surrogate boundaries and inconsistent target text atomically", () => {
     const source = "value=1\nemoji='😀'\n";
     editor.setText(source);
