@@ -31,7 +31,9 @@ In your `package.json`:
 
 ```ts
 type FileFormatProvider = {
-  formatEntireFile(editor: TextEditor): Promise<TextEdit[]> | TextEdit[];
+  formatEntireFile(
+    editor: TextEditor,
+  ): Promise<TextEdit[] | FullTextFormatPlan> | TextEdit[] | FullTextFormatPlan;
   grammarScopes?: string[];
   priority?: number;
   packageName?: string;
@@ -45,7 +47,7 @@ type FileFormatProvider = {
 | `priority`                 | Higher is preferred. `ide-client` uses `2`.                             |
 | `packageName`              | Identifies you in error notifications.                                  |
 
-Return an array of `{ oldRange, newText }` edits, not the formatted text.
+Return an array of `{ oldRange, newText }` edits, or a [validated complete formatting plan](format-plans.md) containing `{ text, edits, isCurrent }`.
 
 ## Minimal example
 

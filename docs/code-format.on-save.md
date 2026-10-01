@@ -31,7 +31,9 @@ In your `package.json`:
 
 ```ts
 type OnSaveFormatProvider = {
-  formatOnSave(editor: TextEditor): Promise<TextEdit[]> | TextEdit[];
+  formatOnSave(
+    editor: TextEditor,
+  ): Promise<TextEdit[] | FullTextFormatPlan> | TextEdit[] | FullTextFormatPlan;
   grammarScopes?: string[];
   priority?: number;
   packageName?: string;
@@ -43,7 +45,7 @@ type OnSaveFormatProvider = {
 | `formatOnSave(editor)`                     | Required — a provider without it is **ignored with a console warning**. |
 | `grammarScopes`, `priority`, `packageName` | As for the other three services.                                        |
 
-Return an array of `{ oldRange, newText }` edits.
+Return an array of `{ oldRange, newText }` edits, or a [validated complete formatting plan](format-plans.md) containing `{ text, edits, isCurrent }`.
 
 ## Minimal example
 

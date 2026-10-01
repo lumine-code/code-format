@@ -13,6 +13,7 @@ The package is a hub: other packages register formatting providers through the `
 - **Priority selection**: the highest-priority provider wins, or all act as a pipeline when the use-all-providers setting is enabled.
 - **Stale-edit guard**: edits computed against a buffer that changed in the meantime are discarded and requested once more.
 - **Single undo**: a format lands as one transaction, so one undo reverts it.
+- **Complete formatting plans**: file and save providers can apply validated full text once while preserving multiple selections through their edits.
 
 ## Installation
 
