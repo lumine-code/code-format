@@ -67,6 +67,8 @@ Return `null` or `undefined` for a trigger you do not serve, allowing another pr
 
 The formatting transaction is separate from the typed text: one undo removes formatting, another removes typing. Keep on-type work fast and conservative.
 
+An accepted formatting edit does not trigger another on-type request when its stop-change event arrives. Later user typing has a new buffer revision and can trigger formatting normally.
+
 ## Teardown
 
 The consumer returns a `Disposable` that removes this registration and invalidates its pending results.

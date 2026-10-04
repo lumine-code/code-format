@@ -147,7 +147,7 @@ describe("format executor ownership and arbitration", () => {
       detail: "Invalid save policy",
     });
     expect(fs.readFileSync(filePath, "utf8")).toBe("unformatted user text\n");
-    expect(editor.getBuffer().isModified()).toBe(false);
+    expect(editor.getFileState()).toBe("unmodified");
   });
 
   it("invalidates an eventual response after the save deadline", async () => {
@@ -169,7 +169,7 @@ describe("format executor ownership and arbitration", () => {
     completion.resolve(replacement("late response\n"));
     await new Promise((resolve) => setTimeout(resolve, 30));
     expect(editor.getText()).toBe(source);
-    expect(editor.getBuffer().isModified()).toBe(false);
+    expect(editor.getFileState()).toBe("unmodified");
     expect(fs.readFileSync(filePath, "utf8")).toBe(source);
   });
 
@@ -182,6 +182,31 @@ describe("format executor ownership and arbitration", () => {
     lumine.config.set("code-format.formatOnSave", true);
     await other.save();
     expect(formatter).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not recursively format its own single-character insertion but formats later typing", async () => {
+    const typedEditor = await lumine.workspace.open(path.join(tempDir, "typing.txt"));
+    let stopped = 0;
+    registrations.push(
+      typedEditor.getBuffer().onDidStopChanging(() => {
+        stopped++;
+      }),
+    );
+    const formatter = jasmine
+      .createSpy("on-type formatter")
+      .and.callFake((_editor, position) => [
+        { oldRange: new Range(position, position), newText: "_" },
+      ]);
+    register("consumeCodeFormatOnType", { formatAtPosition: formatter });
+    lumine.config.set("code-format.formatOnType", true);
+    typedEditor.insertText("a");
+    await until(() => stopped >= 2);
+    expect(formatter).toHaveBeenCalledTimes(1);
+    expect(typedEditor.getText()).toBe("a_");
+    typedEditor.insertText("b");
+    await until(() => stopped >= 4);
+    expect(formatter).toHaveBeenCalledTimes(2);
+    expect(typedEditor.getText()).toBe("a_b_");
   });
 
   it("cancels the previous operation when a newer request owns the buffer", async () => {
@@ -229,6 +254,7 @@ describe("format executor ownership and arbitration", () => {
   for (const change of [
     "source",
     "path",
+    "grammar",
     "selection",
     "reverse",
     "deactivate",
@@ -250,6 +276,17 @@ describe("format executor ownership and arbitration", () => {
       await until(() => request !== undefined);
       if (change === "source") editor.setText("user's later text\n");
       if (change === "path") editor.getBuffer().setPath(path.join(tempDir, "renamed.txt"));
+      if (change === "grammar") {
+        const original = editor.getGrammar();
+        if (original === lumine.grammars.nullGrammar)
+          await lumine.packages.activatePackage("language-javascript");
+        const next =
+          original === lumine.grammars.nullGrammar
+            ? lumine.grammars.grammarForScopeName("source.js")
+            : lumine.grammars.nullGrammar;
+        expect(next).not.toBe(original);
+        editor.setGrammar(next);
+      }
       if (change === "selection") editor.setCursorBufferPosition([0, 1]);
       if (change === "reverse")
         editor.getSelections()[0].setBufferRange(new Range([0, 0], [0, 3]), { reversed: true });

@@ -14,7 +14,7 @@ type FormatRequest = {
 };
 ```
 
-Use `request.text` as the input, rather than reading the editor after asynchronous work. `path` and `ranges` describe that same snapshot. Providers compute results without changing the editor; only the hub applies them. `isCurrent()` refuses results after a source, path, selection, lifecycle, provider-registration or ownership change. `signal` also aborts when another request takes the buffer or the save deadline expires. A stale request is discarded without retrying the user's newer text.
+Use `request.text` as the input, rather than reading the editor after asynchronous work. `path` and `ranges` describe that same snapshot. Providers compute results without changing the editor; only the hub applies them. `isCurrent()` refuses results after a source, path, grammar, selection, lifecycle, provider-registration or ownership change. `signal` also aborts when another request takes the buffer or the save deadline expires. A stale request is discarded without retrying the user's newer text.
 
 The executor returns `true` for a handled result, `false` when no candidate handles the request and `null` when the operation is cancelled. An explicit command reports a missing formatter only for `false`; cancellation stays quiet.
 
