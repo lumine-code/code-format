@@ -119,6 +119,20 @@ describe("format executor ownership and arbitration", () => {
     expect(file).toHaveBeenCalledTimes(1);
   });
 
+  it("reports a save-policy error while allowing the disk write", async () => {
+    main.manager.shouldFormatOnSave = async () => {
+      throw new Error("Invalid save policy");
+    };
+    const notification = spyOn(lumine.notifications, "addError");
+    editor.setText("unformatted user text\n");
+    await editor.save();
+    expect(notification).toHaveBeenCalledWith("code-format: failed to format on save", {
+      detail: "Invalid save policy",
+    });
+    expect(fs.readFileSync(filePath, "utf8")).toBe("unformatted user text\n");
+    expect(editor.getBuffer().isModified()).toBe(false);
+  });
+
   it("invalidates an eventual response after the save deadline", async () => {
     const completion = deferred();
     let request;
