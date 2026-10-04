@@ -1,4 +1,40 @@
 {
+  "menu": [
+    {
+      "label": "Packages",
+      "submenu": [
+        {
+          "label": "Code Format",
+          "submenu": [
+            {
+              "label": "Format Code",
+              "command": "code-format:format-code"
+            },
+            {
+              "label": "List Providers",
+              "command": "code-format:list-providers"
+            },
+            {
+              "label": "Toggle Format on Save",
+              "command": "code-format:toggle-format-on-save"
+            },
+            {
+              "label": "Toggle Observe Current File",
+              "command": "code-format:toggle-observed"
+            },
+            {
+              "label": "Observed Files",
+              "command": "code-format:observed-files"
+            },
+            {
+              "label": "Clear All Observed Files",
+              "command": "code-format:clear-all-observed-files"
+            }
+          ]
+        }
+      ]
+    }
+  ],
   "context-menu": {
     "lumine-text-editor:not([mini])": [
       {

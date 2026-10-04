@@ -25,7 +25,8 @@
     "keymaps",
     "lib",
     "menus",
-    "spec"
+    "spec",
+    "styles"
   ],
   "scripts": {
     "test": "lumine --test spec",
@@ -37,6 +38,11 @@
     "background-tips.provider": {
       "versions": {
         "1.0.0": "provideBackgroundTips"
+      }
+    },
+    "code-format.executor": {
+      "versions": {
+        "1.0.0": "provideCodeFormatExecutor"
       }
     }
   },
@@ -59,6 +65,11 @@
     "code-format.on-save": {
       "versions": {
         "^1.0.0": "consumeCodeFormatOnSave"
+      }
+    },
+    "status-bar": {
+      "versions": {
+        "^1.0.0": "consumeStatusBar"
       }
     }
   },
@@ -85,11 +96,41 @@
       "type": "boolean",
       "default": false
     },
-    "useAllProviders": {
-      "title": "Use All Providers",
-      "description": "Run every matching provider in priority order as a pipeline, each one formatting the output of the last. When disabled, only the highest-priority provider runs.",
+    "defaultProvider": {
+      "title": "Default Formatter",
+      "description": "Package name of the formatter to use. Leave empty to select the first capable provider by priority. Can be overridden per language.",
+      "type": "string",
+      "scopeResolution": "grammar",
+      "default": ""
+    },
+    "includedGlobs": {
+      "title": "Included Save Globs",
+      "description": "When non-empty, format only matching project-relative paths on save. Overrides excluded globs.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "scopeResolution": "grammar",
+      "default": []
+    },
+    "excludedGlobs": {
+      "title": "Excluded Save Globs",
+      "description": "Project-relative paths to skip when formatting on save. A pattern without a slash matches the basename.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "scopeResolution": "grammar",
+      "default": []
+    },
+    "showInStatusBar": {
+      "title": "Show Save Status",
+      "description": "Show format-on-save state for the current file in the status bar. Alt-click to observe the file.",
       "type": "boolean",
       "default": false
     }
+  },
+  "dependencies": {
+    "picomatch": "^4.0.7"
   }
 }

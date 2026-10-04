@@ -66,19 +66,19 @@ describe("code-format package assets", () => {
     expect(schema.formatOnSave.default).toBe(false);
     expect(schema.formatOnType.type).toBe("boolean");
     expect(schema.formatOnType.default).toBe(false);
-    expect(schema.useAllProviders.type).toBe("boolean");
-    expect(schema.useAllProviders.default).toBe(false);
+    expect(schema.defaultProvider.type).toBe("string");
+    expect(schema.defaultProvider.default).toBe("");
     for (const entry of Object.values(schema)) {
       expect(entry.order).toBeUndefined();
     }
   });
 
-  it("has no runtime dependencies and no upstream leftovers in lib", () => {
+  it("ships its UI and glob matcher without upstream leftovers in lib", () => {
     const pkg = JSON.parse(read("package.json"));
-    expect(pkg.dependencies).toBeUndefined();
+    expect(pkg.dependencies.picomatch).toBeDefined();
     expect(exists("tsconfig.json")).toBe(false);
     expect(exists("dist")).toBe(false);
-    expect(exists("styles")).toBe(false);
+    expect(exists("styles/main.css")).toBe(true);
     const libDir = path.join(root, "lib");
     for (const file of fs.readdirSync(libDir)) {
       expect(file.endsWith(".js")).toBe(true);

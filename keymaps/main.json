@@ -1,5 +1,8 @@
 {
   "lumine-text-editor:not([mini])": {
     "cmdorctrl-alt-b": "code-format:format-code"
+  },
+  ".code-format-observed-files-list": {
+    "cmdorctrl-d": "code-format:unobserve-selected-file"
   }
 }

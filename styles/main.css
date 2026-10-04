@@ -1,0 +1,11 @@
+.code-format-save-status,
+.code-format-observed-status {
+  padding: 0 0.5em;
+  cursor: pointer;
+  &:hover {
+    background-color: var(--background-color-highlight);
+  }
+}
+.code-format-save-status.is-enabled {
+  color: var(--text-color-success);
+}
