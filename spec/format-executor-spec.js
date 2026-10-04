@@ -279,10 +279,10 @@ describe("format executor ownership and arbitration", () => {
       if (change === "grammar") {
         const original = editor.getGrammar();
         if (original === lumine.grammars.nullGrammar)
-          await lumine.packages.activatePackage("language-javascript");
+          await lumine.packages.activatePackage("language-json");
         const next =
           original === lumine.grammars.nullGrammar
-            ? lumine.grammars.grammarForScopeName("source.js")
+            ? lumine.grammars.grammarForScopeName("source.json")
             : lumine.grammars.nullGrammar;
         expect(next).not.toBe(original);
         editor.setGrammar(next);
