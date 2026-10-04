@@ -21,11 +21,10 @@ describe("validated complete format plans", () => {
     edits: editor.getBuffer().getChangesToText(target),
     isCurrent: () => editor.getText() === source,
   });
-  const filePipeline = (provider) => {
+  const registerFile = (provider) => {
     registrations.push(
       main.consumeCodeFormatFile({ grammarScopes: [editor.getGrammar().scopeName], ...provider }),
     );
-    return main.manager.buildFormatPipeline(editor, editor.getBuffer().getRange());
   };
 
   it("applies 1000 edits with one replacement and one undo step", async () => {
@@ -39,7 +38,8 @@ describe("validated complete format plans", () => {
     const result = plan(source, target);
     const replace = spyOn(editor, "setText").and.callThrough();
     const individual = spyOn(editor.getBuffer(), "setTextInRange").and.callThrough();
-    await main.manager.runPipeline(filePipeline({ formatEntireFile: () => result }), editor);
+    registerFile({ formatEntireFile: () => result });
+    await main.manager.formatEditor(editor, { range: editor.getBuffer().getRange() });
     expect(replace).toHaveBeenCalledTimes(1);
     expect(individual).toHaveBeenCalledTimes(1);
     expect(editor.getText()).toBe(target);
@@ -236,12 +236,8 @@ describe("validated complete format plans", () => {
       const completion = new Promise((reply) => {
         resolve = reply;
       });
-      const pending = main.manager.runPipeline(
-        filePipeline({
-          formatEntireFile: () => completion,
-        }),
-        editor,
-      );
+      registerFile({ formatEntireFile: () => completion });
+      const pending = main.manager.formatEditor(editor, { range: editor.getBuffer().getRange() });
       if (change === "revision") editor.setText("changed source\n");
       const replace = spyOn(editor, "setText").and.callThrough();
       if (change === "path") editor.getBuffer().setPath(path.join(__dirname, "renamed.txt"));
@@ -259,7 +255,7 @@ describe("validated complete format plans", () => {
     });
   }
 
-  it("keeps range providers on the edit-array contract", async () => {
+  it("accepts a complete range plan accounting for all selected ranges", async () => {
     const source = "value=1\n";
     editor.setText(source);
     registrations.push(
@@ -268,11 +264,7 @@ describe("validated complete format plans", () => {
         formatCode: () => plan(source, "value = 1\n"),
       }),
     );
-    await main.manager.runPipeline(
-      main.manager.buildFormatPipeline(editor, new Range([0, 0], [0, 3])),
-      editor,
-      new Range([0, 0], [0, 3]),
-    );
-    expect(editor.getText()).toBe(source);
+    await main.manager.formatEditor(editor, { range: new Range([0, 0], [0, 3]) });
+    expect(editor.getText()).toBe("value = 1\n");
   });
 });

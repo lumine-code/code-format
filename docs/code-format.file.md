@@ -1,6 +1,6 @@
 # code-format.file
 
-Formats a whole buffer and returns the edits.
+Formats a whole buffer and returns a result for the hub to apply.
 
 |             |                                                             |
 | ----------- | ----------------------------------------------------------- |
@@ -9,13 +9,7 @@ Formats a whole buffer and returns the edits.
 | Consumed by | `consumeCodeFormatFile(provider)` returning a `Disposable`  |
 | Owner       | [`code-format`](https://github.com/lumine-code/code-format) |
 
-The whole-buffer sibling of [`code-format.range`](code-format.range.md). Provide this when your formatter needs the entire file to produce correct output — most do, since imports, indentation, and line wrapping depend on context outside any selection.
-
-A language server reaches this through an `ide-client` adapter.
-
 ## Registration
-
-In your `package.json`:
 
 ```json
 {
@@ -33,21 +27,23 @@ In your `package.json`:
 type FileFormatProvider = {
   formatEntireFile(
     editor: TextEditor,
-  ): Promise<TextEdit[] | FullTextFormatPlan> | TextEdit[] | FullTextFormatPlan;
+    request: FormatRequest,
+  ):
+    | Promise<TextEdit[] | FullTextFormatPlan | null | undefined>
+    | TextEdit[]
+    | FullTextFormatPlan
+    | null
+    | undefined;
   grammarScopes?: string[];
+  canFormat?(editor: TextEditor, request: FormatRequest): boolean | Promise<boolean>;
   priority?: number;
   packageName?: string;
 };
 ```
 
-| Member                     | Description                                                             |
-| -------------------------- | ----------------------------------------------------------------------- |
-| `formatEntireFile(editor)` | Required — a provider without it is **ignored with a console warning**. |
-| `grammarScopes`            | Scope names you serve. May be a getter, and is read on every use.       |
-| `priority`                 | Higher is preferred. `ide-client` uses `2`.                             |
-| `packageName`              | Identifies you in error notifications.                                  |
+`formatEntireFile` is required; a registration without it is ignored with a console warning. See [formatting requests](format-requests.md) for eligibility, selection, cancellation and the distinction between declining and returning no changes. File and range services share that policy.
 
-Return an array of `{ oldRange, newText }` edits, or a [validated complete formatting plan](format-plans.md) containing `{ text, edits, isCurrent }`.
+A complete result may be a validated [formatting plan](format-plans.md). Ordinary edits use original buffer coordinates and contain `{ oldRange, newText }`. Never mutate the editor from a provider.
 
 ## Minimal example
 
@@ -55,15 +51,17 @@ Return an array of `{ oldRange, newText }` edits, or a [validated complete forma
 module.exports = {
   provideCodeFormatFile() {
     return {
+      packageName: "my-formatter",
       grammarScopes: ["source.mylang"],
-      async formatEntireFile(editor) {
-        const source = editor.getText();
-        const formatted = await runFormatter(source, {
+      async formatEntireFile(editor, request) {
+        const text = await runFormatter(request.text, {
           tabSize: editor.getTabLength(),
           insertSpaces: editor.getSoftTabs(),
+          signal: request.signal,
         });
-        if (formatted === source) return [];
-        return [{ oldRange: editor.getBuffer().getRange(), newText: formatted }];
+        if (!request.isCurrent()) return null;
+        if (text === request.text) return [];
+        return [{ oldRange: editor.getBuffer().getRange(), newText: text }];
       },
     };
   },
@@ -72,18 +70,12 @@ module.exports = {
 
 ## Behavior
 
-Matching providers are asked concurrently and **the first non-empty result in priority order wins**, so returning `[]` yields to another provider rather than blocking it.
-
-Returning a single edit spanning the whole buffer is the simplest correct answer, and what a formatter that reprints the file should do. Returning fine-grained edits is better when you can: it preserves markers, folds, and the cursor far more accurately.
-
-When both a file and a range provider match, the range service is used for a selection and this one for an unselected buffer.
-
-The edits are applied as one change, so one undo reverts the format.
+An unselected editor is a whole-file request. File candidates are preferred; range candidates are tried only when no file candidate handles the request. The hub validates edit coordinates and overlaps before applying one transaction. One undo restores the original text.
 
 ## Teardown
 
-`consumeCodeFormatFile` returns a `Disposable` that removes the provider — a no-op one if `formatEntireFile` was missing.
+The consumer returns a `Disposable` that removes this registration and invalidates its pending results.
 
 ## Versioning
 
-`1.0.0` provided, `^1.0.0` consumed. A change that breaks this shape gets a new service name rather than a new major version, and both sides move in the same release.
+`1.0.0` provided, `^1.0.0` consumed. The preproduction contract includes the final request argument and an explicit declined result.

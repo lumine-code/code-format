@@ -1,6 +1,6 @@
 # code-format.on-type
 
-Reformats as the user types, when a trigger character lands.
+Reformats around the cursor after a typed character settles.
 
 |             |                                                              |
 | ----------- | ------------------------------------------------------------ |
@@ -9,13 +9,7 @@ Reformats as the user types, when a trigger character lands.
 | Consumed by | `consumeCodeFormatOnType(provider)` returning a `Disposable` |
 | Owner       | [`code-format`](https://github.com/lumine-code/code-format)  |
 
-The one sibling that runs without the user asking, so it is also the one with the strictest requirements: it must be fast, it must be conservative, and it must not fight the cursor.
-
-A language server reaches this through an `ide-client` adapter.
-
 ## Registration
-
-In your `package.json`:
 
 ```json
 {
@@ -35,21 +29,17 @@ type OnTypeFormatProvider = {
     editor: TextEditor,
     position: Point,
     character: string,
-  ): Promise<TextEdit[]> | TextEdit[];
+    request: FormatRequest,
+  ): Promise<TextEdit[] | null | undefined> | TextEdit[] | null | undefined;
   keepCursorPosition?: boolean;
   grammarScopes?: string[];
+  canFormat?(editor: TextEditor, request: FormatRequest): boolean | Promise<boolean>;
   priority?: number;
   packageName?: string;
 };
 ```
 
-| Member                                          | Description                                                                       |
-| ----------------------------------------------- | --------------------------------------------------------------------------------- |
-| `formatAtPosition(editor, position, character)` | Required — a provider without it is **ignored with a console warning**.           |
-| `keepCursorPosition`                            | Whether the cursor should be restored after the edits. `ide-client` sets `false`. |
-| `grammarScopes`, `priority`, `packageName`      | As for the other three services.                                                  |
-
-`character` is the character that triggered the reformat.
+`formatAtPosition` is required; a registration without it is ignored with a console warning. Shared eligibility, provider selection and lifecycle guards are described in [formatting requests](format-requests.md). `keepCursorPosition` restores the original cursor after accepted edits when true.
 
 ## Minimal example
 
@@ -57,11 +47,12 @@ type OnTypeFormatProvider = {
 module.exports = {
   provideCodeFormatOnType() {
     return {
+      packageName: "my-formatter",
       grammarScopes: ["source.mylang"],
-      keepCursorPosition: false,
-      async formatAtPosition(editor, position, character) {
-        if (character !== "}" && character !== ";") return [];
-        return reindentEnclosingBlock(editor, position);
+      async formatAtPosition(editor, position, character, request) {
+        if (character !== "}" && character !== ";") return null;
+        const edits = await reindentBlock(request.text, position);
+        return request.isCurrent() ? edits : null;
       },
     };
   },
@@ -70,18 +61,16 @@ module.exports = {
 
 ## Behavior
 
-**`character` is the last character of the change, not the first.** With bracket matching inserting a pair, the closing `}` is what the user actually typed, so keying off the last character is what makes auto-indent trigger at the right moment.
+The trigger is the last character of an insertion. A recognized bracket pair uses its closing character. Deletions, replacements and ordinary pastes do not trigger this service. The setting is opt-in and read per language.
 
-Matching providers are asked concurrently and the first non-empty result in priority order is applied. Return `[]` — cheaply, and for almost every keystroke — unless the character is one you care about.
+Return `null` or `undefined` for a trigger you do not serve, allowing another provider to try. An array, including `[]`, handles the request. Typing or moving the selection while a provider works invalidates the answer. On-type results are edit arrays, not complete formatting plans.
 
-Edits are **discarded if the buffer changed while you worked**. Typing does not stop for a formatter, so a slow provider simply has no effect rather than corrupting text it no longer describes. Keep the work under a keystroke's worth of time.
-
-The resulting change is **deliberately not grouped with the typing that triggered it**: one undo removes the formatting and a second removes the typed text, so a user who dislikes the reformat can back it out without losing what they typed.
+The formatting transaction is separate from the typed text: one undo removes formatting, another removes typing. Keep on-type work fast and conservative.
 
 ## Teardown
 
-`consumeCodeFormatOnType` returns a `Disposable` that removes the provider — a no-op one if `formatAtPosition` was missing.
+The consumer returns a `Disposable` that removes this registration and invalidates its pending results.
 
 ## Versioning
 
-`1.0.0` provided, `^1.0.0` consumed. A change that breaks this shape gets a new service name rather than a new major version, and both sides move in the same release.
+`1.0.0` provided, `^1.0.0` consumed. The preproduction contract includes the final request argument and explicit decline semantics.

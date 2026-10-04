@@ -3,7 +3,6 @@ const os = require("os");
 const path = require("path");
 
 const packageRoot = path.join(__dirname, "..");
-const { SAVE_TIMEOUT } = require("../lib/code-format-manager");
 
 // Polls a real-clock condition; requires jasmine.useRealClock().
 async function until(predicate, description = "condition", timeout = 8000) {
@@ -22,6 +21,7 @@ describe("code-format", () => {
   let filePath;
   let editor;
   let disposables;
+  let saveTimeout;
 
   beforeEach(async () => {
     jasmine.useRealClock();
@@ -34,6 +34,7 @@ describe("code-format", () => {
 
     const pack = await lumine.packages.activatePackage(packageRoot);
     mainModule = pack.mainModule;
+    saveTimeout = require("../lib/code-format-manager").SAVE_TIMEOUT;
     editor = await lumine.workspace.open(filePath);
     disposables = [];
   });
@@ -166,7 +167,7 @@ describe("code-format", () => {
       expect(editor.getText()).toBe("def\n");
     });
 
-    it("discards stale edits and retries once when the buffer changes mid-format", async () => {
+    it("discards stale edits without formatting the user's newer text", async () => {
       let calls = 0;
       const resolvers = [];
       addProvider("consumeCodeFormatFile", {
@@ -178,8 +179,8 @@ describe("code-format", () => {
       const dispatched = dispatch("code-format:format-code");
       await until(() => resolvers.length === 1, "first provider call");
 
-      // The buffer changes while the provider is pending, so its edits are
-      // stale and the manager asks once more.
+      // A request belongs to the user's original text; a stale request never
+      // starts a new formatting operation against a later edit.
       editor.getBuffer().append("zzz");
       resolvers[0]([
         {
@@ -190,21 +191,8 @@ describe("code-format", () => {
           newText: "def",
         },
       ]);
-      await until(() => resolvers.length === 2, "retry provider call");
-
-      // The retry goes stale too; this time the edits are dropped for good.
-      editor.getBuffer().append("qqq");
-      resolvers[1]([
-        {
-          oldRange: [
-            [0, 0],
-            [0, 3],
-          ],
-          newText: "def",
-        },
-      ]);
       await dispatched;
-      expect(calls).toBe(2);
+      expect(calls).toBe(1);
       expect(editor.getText()).not.toContain("def");
       expect(editor.getText()).toContain("zzz");
     });
@@ -239,7 +227,7 @@ describe("code-format", () => {
       });
       const start = Date.now();
       await editor.save();
-      expect(Date.now() - start).toBeGreaterThanOrEqual(SAVE_TIMEOUT - 50);
+      expect(Date.now() - start).toBeGreaterThanOrEqual(saveTimeout - 50);
       expect(editor.getText()).toBe("abc\n");
       expect(fs.readFileSync(filePath, "utf8")).toBe("abc\n");
     });

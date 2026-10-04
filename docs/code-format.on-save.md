@@ -1,6 +1,6 @@
 # code-format.on-save
 
-Reformats a buffer as it is saved.
+Provides save-specific formatting before the buffer is written to disk.
 
 |             |                                                              |
 | ----------- | ------------------------------------------------------------ |
@@ -9,13 +9,7 @@ Reformats a buffer as it is saved.
 | Consumed by | `consumeCodeFormatOnSave(provider)` returning a `Disposable` |
 | Owner       | [`code-format`](https://github.com/lumine-code/code-format)  |
 
-Distinct from [`code-format.file`](code-format.file.md) even though both format the whole buffer: this one is invoked by the save itself, so a formatter that should run on save without also being the manual formatter provides this and not that.
-
-A language server reaches this through an `ide-client` adapter.
-
 ## Registration
-
-In your `package.json`:
 
 ```json
 {
@@ -33,19 +27,21 @@ In your `package.json`:
 type OnSaveFormatProvider = {
   formatOnSave(
     editor: TextEditor,
-  ): Promise<TextEdit[] | FullTextFormatPlan> | TextEdit[] | FullTextFormatPlan;
+    request: FormatRequest,
+  ):
+    | Promise<TextEdit[] | FullTextFormatPlan | null | undefined>
+    | TextEdit[]
+    | FullTextFormatPlan
+    | null
+    | undefined;
   grammarScopes?: string[];
+  canFormat?(editor: TextEditor, request: FormatRequest): boolean | Promise<boolean>;
   priority?: number;
   packageName?: string;
 };
 ```
 
-| Member                                     | Description                                                             |
-| ------------------------------------------ | ----------------------------------------------------------------------- |
-| `formatOnSave(editor)`                     | Required — a provider without it is **ignored with a console warning**. |
-| `grammarScopes`, `priority`, `packageName` | As for the other three services.                                        |
-
-Return an array of `{ oldRange, newText }` edits, or a [validated complete formatting plan](format-plans.md) containing `{ text, edits, isCurrent }`.
+`formatOnSave` is required; a registration without it is ignored with a console warning. See [formatting requests](format-requests.md) for the shared provider policy and [complete plans](format-plans.md) for document results. Ordinary formatters only need a file provider: this service is for save-specific behavior such as a language server's `willSaveWaitUntil` request.
 
 ## Minimal example
 
@@ -53,12 +49,11 @@ Return an array of `{ oldRange, newText }` edits, or a [validated complete forma
 module.exports = {
   provideCodeFormatOnSave() {
     return {
+      packageName: "my-formatter",
       grammarScopes: ["source.mylang"],
-      async formatOnSave(editor) {
-        const source = editor.getText();
-        const formatted = await runFormatter(source);
-        if (formatted === source) return [];
-        return [{ oldRange: editor.getBuffer().getRange(), newText: formatted }];
+      async formatOnSave(editor, request) {
+        const edits = await prepareSave(request.text, request.path, request.signal);
+        return request.isCurrent() ? edits : null;
       },
     };
   },
@@ -67,18 +62,14 @@ module.exports = {
 
 ## Behavior
 
-Whether formatting happens on save at all is the **user's** setting in `code-format`. Providing this service makes you available; it does not turn the behavior on.
+Providing this service makes it available without enabling automatic formatting. The hub owns the user's save policy. Matching save candidates run in priority order until one returns a successful result; `[]` is a successful no-op. If they all decline, the hub tries ordinary whole-file formatting.
 
-Matching providers are asked concurrently and the first non-empty result in priority order is applied. Return `[]` when there is nothing to do — a save that rewrites nothing should leave the buffer's modified state alone.
-
-The edits are applied before the write, so what lands on disk is the formatted text and the buffer is not left dirty afterwards. That also means a slow provider delays every save of a matching file: keep it bounded, and prefer returning `[]` quickly over blocking on a tool that may not be installed.
-
-An error is surfaced as a dismissable notification rather than failing the save.
+The complete save operation has a 500 ms deadline. Timeout aborts the request and lets the disk write proceed; a later response cannot change the buffer. Accepted edits apply before the write, so the disk and buffer contain the same text. An error is reported without failing the save.
 
 ## Teardown
 
-`consumeCodeFormatOnSave` returns a `Disposable` that removes the provider — a no-op one if `formatOnSave` was missing.
+The consumer returns a `Disposable` that removes this registration and invalidates its pending results.
 
 ## Versioning
 
-`1.0.0` provided, `^1.0.0` consumed. A change that breaks this shape gets a new service name rather than a new major version, and both sides move in the same release.
+`1.0.0` provided, `^1.0.0` consumed. The preproduction contract includes the final request argument, cancellation and explicit decline semantics.
