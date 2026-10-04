@@ -65,6 +65,23 @@ describe("format executor ownership and arbitration", () => {
     expect(editor.getBuffer().undo()).toBe(false);
   });
 
+  it("treats an unchanged complete plan as a successful no-op", async () => {
+    const fallback = jasmine.createSpy("fallback").and.returnValue(replacement("unexpected\n"));
+    register("consumeCodeFormatFile", {
+      priority: 2,
+      formatEntireFile: (_editor, request) => ({
+        text: request.text,
+        edits: [],
+        isCurrent: request.isCurrent,
+      }),
+    });
+    register("consumeCodeFormatFile", { priority: 1, formatEntireFile: fallback });
+    expect(await main.manager.formatEditor(editor)).toBe(true);
+    expect(fallback).not.toHaveBeenCalled();
+    expect(editor.getText()).toBe("aaa bbb ccc\n");
+    expect(editor.getBuffer().undo()).toBe(false);
+  });
+
   it("selects a path-based provider and skips one declining eligibility", async () => {
     const unavailable = jasmine.createSpy("unavailable");
     register("consumeCodeFormatFile", {
