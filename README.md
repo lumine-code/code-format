@@ -62,7 +62,7 @@ Restyle the save-status tiles from your `styles.css`:
 
 ```css
 .code-format-observed-status {
-  color: var(--accent-only-text-color);
+  color: var(--accent-link-color);
 }
 ```
 
