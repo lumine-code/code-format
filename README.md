@@ -2,6 +2,8 @@
 
 Format code on demand or on save using registered providers.
 
+Fork of [savetheclocktower/pulsar-code-format](https://github.com/savetheclocktower/pulsar-code-format).
+
 Providers calculate changes; this hub selects the formatter and applies its results to open editors.
 
 ## Features
