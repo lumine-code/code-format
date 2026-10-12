@@ -1,3 +1,4 @@
+const windowService = require("./helpers/window-service");
 describe("Code Format runtime ownership", () => {
   let main, editor, hub, consumers, providers, bars, StatusBarView, cleanups;
   const statusTiles = (bar) =>
@@ -25,12 +26,20 @@ describe("Code Format runtime ownership", () => {
     bars.forEach((bar) => bar.destroy());
   });
   function provide(service, value) {
-    const provider = hub.provide(service, "1.0.0", value);
+    const provider = hub.provide(
+      service,
+      service === "status-bar" ? "2.0.0" : "1.0.0",
+      service === "status-bar" ? windowService(value) : value,
+    );
     providers.push(provider);
     return provider;
   }
   function consume(service, method) {
-    consumers.push(hub.consume(service, "^1.0.0", (value) => main[method](value)));
+    consumers.push(
+      hub.consume(service, service === "status-bar" ? "^2.0.0" : "^1.0.0", (value) =>
+        main[method](value),
+      ),
+    );
   }
   function bar() {
     const value = new StatusBarView();
@@ -73,7 +82,7 @@ describe("Code Format runtime ownership", () => {
     const tooltips = spyOn(lumine.tooltips, "addComposite").and.callThrough();
     cleanups.push(() => tooltips.calls.all().forEach((call) => call.returnValue?.dispose()));
     const value = bar();
-    const lease = main.consumeStatusBar(value);
+    const lease = main.consumeStatusBar(windowService(value));
     cleanups.push(() => lease.dispose());
 
     lumine.config.set("code-format.showInStatusBar", true);
@@ -89,7 +98,7 @@ describe("Code Format runtime ownership", () => {
     const tooltips = spyOn(lumine.tooltips, "addComposite").and.callThrough();
     cleanups.push(() => tooltips.calls.all().forEach((call) => call.returnValue?.dispose()));
     const value = bar();
-    const lease = main.consumeStatusBar(value);
+    const lease = main.consumeStatusBar(windowService(value));
     cleanups.push(() => lease.dispose());
     observedFiles.setObserved(__filename, true);
     expect(statusTiles(value).length).toBe(0);
@@ -104,7 +113,7 @@ describe("Code Format runtime ownership", () => {
       main.deactivate();
       return tile;
     });
-    const lease = main.consumeStatusBar(value);
+    const lease = main.consumeStatusBar(windowService(value));
     cleanups.push(() => lease.dispose());
     expect(statusTiles(value).length).toBe(0);
   });
@@ -118,11 +127,11 @@ describe("Code Format runtime ownership", () => {
       const tile = add(options);
       if (!nested) {
         nested = true;
-        main.consumeStatusBar(value).dispose();
+        main.consumeStatusBar(windowService(value)).dispose();
       }
       return tile;
     });
-    const lease = main.consumeStatusBar(value);
+    const lease = main.consumeStatusBar(windowService(value));
     cleanups.push(() => lease.dispose());
     expect(statusTiles(value).length).toBe(1);
     lease.dispose();
@@ -144,7 +153,7 @@ describe("Code Format runtime ownership", () => {
         }
         return tile;
       });
-      const lease = main.consumeStatusBar(value);
+      const lease = main.consumeStatusBar(windowService(value));
       cleanups.push(() => lease.dispose());
       expect(statusTiles(value).length).toBe(restore ? 1 : 0);
       if (restore) expect(statusTiles(value)[0].getItem().isConnected).toBe(true);

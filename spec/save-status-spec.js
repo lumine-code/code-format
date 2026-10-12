@@ -1,3 +1,4 @@
+const windowService = require("./helpers/window-service");
 describe("formatting save status", () => {
   let main, observedFiles;
   beforeEach(async () => {
@@ -22,7 +23,7 @@ describe("formatting save status", () => {
         return tile;
       },
     };
-    const registration = main.consumeStatusBar(statusBar);
+    const registration = main.consumeStatusBar(windowService(statusBar));
     expect(tiles.length).toBe(1);
     observedFiles.setObserved(__filename, true);
     expect(tiles.length).toBe(2);
@@ -34,15 +35,17 @@ describe("formatting save status", () => {
     editor.getBuffer().setPath(__filename);
     lumine.config.set("code-format.showInStatusBar", true);
     let item;
-    const registration = main.consumeStatusBar({
-      addLeftTile(options) {
-        item = options.item;
-        return { destroy() {} };
-      },
-      addRightTile() {
-        return { destroy() {} };
-      },
-    });
+    const registration = main.consumeStatusBar(
+      windowService({
+        addLeftTile(options) {
+          item = options.item;
+          return { destroy() {} };
+        },
+        addRightTile() {
+          return { destroy() {} };
+        },
+      }),
+    );
     expect(item.textContent).toBe("Format on Save: Off");
     main.policy.toggle(editor);
     expect(item.textContent).toBe("Format on Save");
