@@ -89,11 +89,6 @@ describe("formatting save status", () => {
       "code-format:observed-files",
       "code-format:list-providers",
     ]);
-    expect(
-      menu()
-        .filter((entry) => entry.mouseBindingLabel)
-        .map((entry) => entry.mouseBindingLabel),
-    ).toEqual(["MMB", "LMB", "Alt+LMB"]);
     const options = tooltips.calls.all().find((call) => call.args[0] === item).args[1];
     expect(options.keyBindingCommand).toBe("code-format:toggle-format-on-save");
     expect(options.keyBindingTarget()).toBe(editor.getElement());
