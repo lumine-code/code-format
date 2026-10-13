@@ -24,4 +24,39 @@ describe("format on save window context", () => {
     extra.getElement().querySelector(".code-format-save-status").click();
     expect(toggle).toHaveBeenCalledOnceWith(other);
   });
+  it("formats and lists providers for the window selected through its status menu", async () => {
+    const workspace = lumine.workspace;
+    await workspace.open();
+    const extra = await workspace.openEditorWindow({ show: false });
+    const other = workspace.buildTextEditor();
+    extra.getEditorContainer().getActivePane().activateItem(other, { activatePane: true });
+    const main = lumine.packages.getActivePackage("code-format").mainModule;
+    const format = spyOn(main.manager, "formatEditor").and.resolveTo(true);
+    const resolve = spyOn(main.manager, "resolveEditor").and.callThrough();
+    const tile = extra.getElement().querySelector(".code-format-save-status");
+    await lumine.commands.dispatch(tile, "code-format:format-code");
+    expect(format).toHaveBeenCalledOnceWith(other);
+    await lumine.commands.dispatch(tile, "code-format:list-providers");
+    expect(resolve.calls.mostRecent().returnValue).toBe(other);
+  });
+  it("formats the embedded editor offered by the active document", async () => {
+    const workspace = lumine.workspace;
+    const editor = workspace.buildTextEditor();
+    const element = document.createElement("div");
+    const item = {
+      getTitle: () => "Embedded source",
+      getElement: () => element,
+      getActiveEmbeddedTextEditor: () => editor,
+    };
+    workspace.getActivePane().activateItem(item);
+    const main = lumine.packages.getActivePackage("code-format").mainModule;
+    const format = spyOn(main.manager, "formatEditor").and.resolveTo(true);
+    await lumine.commands.dispatch(
+      workspace.getMainWindow().getElement().querySelector(".code-format-save-status"),
+      "code-format:format-code",
+    );
+    expect(format).toHaveBeenCalledOnceWith(editor);
+    workspace.getActivePane().destroyItem(item);
+    editor.destroy();
+  });
 });

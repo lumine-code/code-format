@@ -41,7 +41,7 @@ Commands available in `.code-format-observed-files-list`:
 
 Install and enable a formatting provider. Automatic selection tries capable providers in priority order. A declined request yields to the next one, while a successful result with no changes stops selection. A default formatter selects that package strictly, without silently replacing it with another engine.
 
-Observed files are session-only opt-ins that override the hub's save switch and glob filters. Provider eligibility checks still apply. Alt-click the save-status tile to observe the current file. The observed-file counter opens the list on left click and clears it on right click.
+Observed files are session-only opt-ins that override the hub's save switch and glob filters. Provider eligibility checks still apply. Left click the save-status tile to toggle formatting on save for its language, alt-click to observe the current file, or middle click to format now. Right click opens a menu with every action, the observed-files list, and formatter information. The observed-file counter opens the list on left click and a menu with list and stop-all actions on right click.
 
 ## Configuration
 

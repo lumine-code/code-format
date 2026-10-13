@@ -34,5 +34,30 @@
         }
       ]
     }
-  ]
+  ],
+  "context-menu": {
+    ".code-format-save-status": [
+      { "type": "separator" },
+      { "label": "Format Now", "command": "code-format:format-code" },
+      {
+        "label": "Format on Save for This Language",
+        "type": "checkbox",
+        "command": "code-format:toggle-format-on-save"
+      },
+      {
+        "label": "Observe This File",
+        "type": "checkbox",
+        "command": "code-format:toggle-observed"
+      },
+      { "label": "Observed Files", "command": "code-format:observed-files" },
+      { "label": "Show Formatters", "command": "code-format:list-providers" },
+      { "type": "separator" }
+    ],
+    ".code-format-observed-status": [
+      { "type": "separator" },
+      { "label": "Observed Files", "command": "code-format:observed-files" },
+      { "label": "Stop Observing All Files", "command": "code-format:clear-all-observed-files" },
+      { "type": "separator" }
+    ]
+  }
 }
