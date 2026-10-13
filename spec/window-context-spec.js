@@ -85,6 +85,52 @@ describe("format on save window context", () => {
     expect(command(noEditorMenu, "toggle-observed").checked).toBe(false);
     await mainWindow.getEditorContainer().getActivePane().destroyItem(item);
   });
+  it("shows user-assigned editor shortcuts for actions without default bindings", async () => {
+    const workspace = lumine.workspace;
+    const mainWindow = workspace.getMainWindow();
+    const editor = await workspace.open();
+    editor.getBuffer().setPath(__filename);
+    editor.getElement().classList.add("code-format-user-shortcuts");
+    const commands = ["toggle-format-on-save", "toggle-observed", "list-providers"];
+    const userBindings = lumine.keymaps.add("code-format-status-user-shortcuts", {
+      "lumine-text-editor.code-format-user-shortcuts:not([mini])": {
+        f9: "code-format:toggle-format-on-save",
+        f10: "code-format:toggle-observed",
+        f11: "code-format:list-providers",
+      },
+    });
+    try {
+      const extra = await workspace.openEditorWindow({ show: false });
+      const other = workspace.buildTextEditor();
+      extra.getEditorContainer().getActivePane().activateItem(other, { activatePane: true });
+      expect(workspace.getActiveTextEditor()).toBe(other);
+      const menu = (editorWindow) =>
+        lumine.contextMenu.templateForElement(
+          editorWindow.getElement().querySelector(".code-format-save-status"),
+        );
+      const row = (items, command) =>
+        items.find((item) => item.command === "code-format:" + command);
+      const ownMenu = menu(mainWindow);
+      const otherMenu = menu(extra);
+      for (const [index, command] of commands.entries()) {
+        expect(row(ownMenu, command).keyBindingLabel).toBe("F" + (9 + index));
+        expect(row(otherMenu, command).keyBindingLabel).toBe("");
+      }
+      const element = document.createElement("div");
+      const pdf = {
+        filePath: __filename + ".pdf",
+        getTitle: () => "PDF",
+        getElement: () => element,
+      };
+      const pane = mainWindow.getEditorContainer().getActivePane();
+      pane.activateItem(pdf);
+      const pdfMenu = menu(mainWindow);
+      for (const command of commands) expect(row(pdfMenu, command).keyBindingLabel).toBe("");
+      await pane.destroyItem(pdf);
+    } finally {
+      userBindings.dispose();
+    }
+  });
   it("formats the embedded editor offered by the active document", async () => {
     const workspace = lumine.workspace;
     const editor = workspace.buildTextEditor();
