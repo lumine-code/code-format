@@ -39,7 +39,9 @@
       "submenu": [
         {
           "label": "Format Code",
-          "command": "code-format:format-code"
+          "command": "code-format:format-code",
+          "group": "format",
+          "order": 10
         }
       ]
     }
