@@ -95,7 +95,9 @@ describe("formatting save status", () => {
         .map((entry) => entry.mouseBindingLabel),
     ).toEqual(["MMB", "LMB", "Alt+LMB"]);
     const options = tooltips.calls.all().find((call) => call.args[0] === item).args[1];
-    expect(options.keyBindingCommand).toBeUndefined();
+    expect(options.keyBindingCommand).toBe("code-format:toggle-format-on-save");
+    expect(options.keyBindingTarget()).toBe(editor.getElement());
+    expect(options.html).toBe(false);
     expect(options.keyBindingExtra).toBeUndefined();
     expect(options.title()).toBe("Format on save disabled. Toggle for this language.");
     observedFiles.setObserved(__filename, true);

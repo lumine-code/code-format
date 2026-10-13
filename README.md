@@ -58,7 +58,7 @@ Use scoped settings to select a formatter and enable formatting on save for one 
 }
 ```
 
-Status tooltips show the current state and primary click action; context menus show mouse shortcuts beside their actions.
+Status tooltips show the current state and primary click action with its matching keyboard binding; context menus show mouse shortcuts beside their actions.
 
 ## Customization
 
