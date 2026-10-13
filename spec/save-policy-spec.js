@@ -1,11 +1,12 @@
 const path = require("path");
 const { TextEditor } = require("lumine");
+const currentPackageRequire = require("./helpers/current-package-require");
 
 describe("format-on-save policy", () => {
   let editor, observedFiles, policy;
   beforeEach(async () => {
     const pack = await lumine.packages.activatePackage("code-format");
-    observedFiles = require("../lib/observed-files");
+    observedFiles = currentPackageRequire(pack)("./lib/observed-files");
     policy = pack.mainModule.policy;
     editor = new TextEditor({ buffer: new (require("lumine").TextBuffer)({ text: "source" }) });
     editor.getBuffer().setPath(path.resolve("project/src/index.js"));

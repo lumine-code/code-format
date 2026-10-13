@@ -1,9 +1,11 @@
 const windowService = require("./helpers/window-service");
+const currentPackageRequire = require("./helpers/current-package-require");
 describe("formatting save status", () => {
   let main, observedFiles;
   beforeEach(async () => {
-    main = (await lumine.packages.activatePackage("code-format")).mainModule;
-    observedFiles = require("../lib/observed-files");
+    const pack = await lumine.packages.activatePackage("code-format");
+    main = pack.mainModule;
+    observedFiles = currentPackageRequire(pack)("./lib/observed-files");
   });
   afterEach(() => {
     observedFiles.clearObserved();

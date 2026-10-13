@@ -1,6 +1,7 @@
 const windowService = require("./helpers/window-service");
+const currentPackageRequire = require("./helpers/current-package-require");
 describe("Code Format runtime ownership", () => {
-  let main, editor, hub, consumers, providers, bars, StatusBarView, cleanups;
+  let main, editor, hub, consumers, providers, bars, StatusBarView, cleanups, observedFiles;
   const statusTiles = (bar) =>
     bar.getLeftTiles().filter((tile) => tile.getItem().matches?.(".code-format-save-status"));
   beforeEach(async () => {
@@ -8,7 +9,9 @@ describe("Code Format runtime ownership", () => {
     jasmine.attachToDOM(lumine.workspace.getElement());
     await lumine.packages.activatePackage("status-bar");
     StatusBarView = lumine.packages.getActivePackage("status-bar").mainModule.statusBar.constructor;
-    main = (await lumine.packages.activatePackage("code-format")).mainModule;
+    const pack = await lumine.packages.activatePackage("code-format");
+    main = pack.mainModule;
+    observedFiles = currentPackageRequire(pack)("./lib/observed-files");
     hub = new lumine.packages.serviceHub.constructor();
     consumers = [];
     providers = [];
@@ -91,7 +94,6 @@ describe("Code Format runtime ownership", () => {
   });
 
   it("does not rebuild a retired status view from copied observed-file callbacks", () => {
-    const observedFiles = require("../lib/observed-files");
     lumine.config.set("code-format.showInStatusBar", true);
     const earlier = observedFiles.onDidChange(() => main.deactivate());
     cleanups.push(() => earlier.dispose());

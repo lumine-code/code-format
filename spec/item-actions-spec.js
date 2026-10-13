@@ -1,15 +1,17 @@
 const path = require("path");
 const os = require("os");
 const { Icon } = require("lumine");
-const observedFiles = require("../lib/observed-files");
-const ObservedFilesList = require("../lib/observed-list");
+const currentPackageRequire = require("./helpers/current-package-require");
 
 describe("code-format item actions", () => {
-  let observedList, list, iconRegistration;
+  let observedList, list, iconRegistration, observedFiles, ObservedFilesList;
 
   beforeEach(async () => {
     jasmine.attachToDOM(lumine.views.getView(lumine.workspace));
-    await lumine.packages.activatePackage("code-format");
+    const pack = await lumine.packages.activatePackage("code-format");
+    const requireCurrent = currentPackageRequire(pack);
+    observedFiles = requireCurrent("./lib/observed-files");
+    ObservedFilesList = requireCurrent("./lib/observed-list");
 
     observedList = new ObservedFilesList();
     list = observedList.selectList;
