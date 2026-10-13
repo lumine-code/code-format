@@ -17,6 +17,10 @@ Providers calculate changes; this hub selects the formatter and applies its resu
 - **Single undo**: apply formatting in one transaction while preserving multiple selections.
 - **Save status**: show the current file's policy and an observed-file counter in the status bar.
 
+![Source before formatting.](.github/demo.png)
+
+![Source after formatting.](.github/demo-2.png)
+
 ## Installation
 
 To install `code-format` search for it in the Install pane of the Lumine settings, or run the command `lumine --install lumine-code/code-format`.
