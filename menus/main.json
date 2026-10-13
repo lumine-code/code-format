@@ -33,12 +33,26 @@
           ]
         }
       ]
+    },
+    {
+      "label": "Edit",
+      "submenu": [
+        {
+          "label": "Format Code",
+          "command": "code-format:format-code"
+        }
+      ]
     }
   ],
   "context-menu": {
     ".code-format-save-status": [
-      { "type": "separator" },
-      { "label": "Format Now", "command": "code-format:format-code" },
+      {
+        "type": "separator"
+      },
+      {
+        "label": "Format Now",
+        "command": "code-format:format-code"
+      },
       {
         "label": "Format on Save for This Language",
         "type": "checkbox",
@@ -49,18 +63,33 @@
         "type": "checkbox",
         "command": "code-format:toggle-observed"
       },
-      { "label": "Observed Files", "command": "code-format:observed-files" },
-      { "label": "Show Formatters", "command": "code-format:list-providers" },
-      { "type": "separator" }
-    ],
-    ".code-format-observed-status": [
-      { "type": "separator" },
       {
         "label": "Observed Files",
         "command": "code-format:observed-files"
       },
-      { "label": "Stop Observing All Files", "command": "code-format:clear-all-observed-files" },
-      { "type": "separator" }
+      {
+        "label": "Show Formatters",
+        "command": "code-format:list-providers"
+      },
+      {
+        "type": "separator"
+      }
+    ],
+    ".code-format-observed-status": [
+      {
+        "type": "separator"
+      },
+      {
+        "label": "Observed Files",
+        "command": "code-format:observed-files"
+      },
+      {
+        "label": "Stop Observing All Files",
+        "command": "code-format:clear-all-observed-files"
+      },
+      {
+        "type": "separator"
+      }
     ]
   }
 }
