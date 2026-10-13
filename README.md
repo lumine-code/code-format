@@ -58,6 +58,8 @@ Use scoped settings to select a formatter and enable formatting on save for one 
 }
 ```
 
+Status tooltips show the current state and primary click action; context menus show mouse shortcuts beside their actions.
+
 ## Customization
 
 Restyle the save-status tiles from your `styles.css`:

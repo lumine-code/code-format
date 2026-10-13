@@ -59,6 +59,7 @@ describe("formatting save status", () => {
     editor.destroy();
   });
   it("shows every action and reads each checkbox independently when the menu opens", async () => {
+    const tooltips = spyOn(lumine.tooltips, "add").and.callThrough();
     const editor = await lumine.workspace.open();
     editor.getBuffer().setPath(__filename);
     lumine.config.set("code-format.showInStatusBar", true);
@@ -86,6 +87,15 @@ describe("formatting save status", () => {
       "code-format:observed-files",
       "code-format:list-providers",
     ]);
+    expect(
+      menu()
+        .filter((entry) => entry.mouseBindingLabel)
+        .map((entry) => entry.mouseBindingLabel),
+    ).toEqual(["MMB", "LMB", "Alt+LMB"]);
+    const options = tooltips.calls.all().find((call) => call.args[0] === item).args[1];
+    expect(options.keyBindingCommand).toBeUndefined();
+    expect(options.keyBindingExtra).toBeUndefined();
+    expect(options.title()).toBe("Format on save disabled. Toggle for this language.");
     observedFiles.setObserved(__filename, true);
     const entries = menu();
     expect(entries.find((entry) => entry.command === "code-format:toggle-observed").checked).toBe(
