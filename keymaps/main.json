@@ -4,5 +4,11 @@
   },
   ".code-format-observed-files-list": {
     "cmdorctrl-d": "code-format:unobserve-selected-file"
+  },
+  ".code-format-observed-files-list lumine-text-editor[mini]": {
+    "alt-enter": "code-format:open-with",
+    "shift-enter": "code-format:open-pending",
+    "ctrl-alt-enter": "code-format:open-external",
+    "ctrl-shift-enter": "code-format:show-in-folder"
   }
 }
