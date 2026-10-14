@@ -60,7 +60,6 @@ describe("code-format item actions", () => {
     expect(actions.map((action) => action.command)).toEqual([
       "code-format:open-selected-file",
       "code-format:open-with",
-      "code-format:open-pending",
       "code-format:open-external",
       "code-format:show-in-folder",
       "code-format:unobserve-selected-file",
