@@ -1,22 +1,73 @@
 {
   "title": "code-format",
-  "description": "Format JavaScript source with Prettier.",
-  "recordedOn": "2026-10-13",
-  "sourceRevision": "e478481160bb5a623524cc3dccff43540f97740d",
+  "description": "Source before formatting.",
+  "recordedOn": "2026-10-14",
+  "sourceRevision": "82a61523535cf2d934d6e148561030c5cf779893",
+  "themeSourceRevision": "7fbd047a87ecf1367c896b19ff270cdc28d319f7",
   "mode": "normal",
   "fontSettings": "default",
+  "scenario": "demo.js",
+  "recipeHash": "432ddf5ac0e523131e0a31e472e2c4438bb6a9b696989dd0560c395396b212f2",
+  "environment": {
+    "platform": "win32",
+    "arch": "x64",
+    "electron": "44.7.0",
+    "chrome": "152.0.7977.130",
+    "devicePixelRatio": 1,
+    "locale": "en-GB",
+    "fontFamily": "Fira Code, Menlo, DejaVu Sans Mono, Consolas, monospace",
+    "fontSize": 14,
+    "themes": ["one-day-syntax", "one-day-ui"]
+  },
+  "viewport": { "width": 1100, "height": 340 },
+  "cornerRadius": 10,
+  "sources": {
+    "editor": {
+      "revision": "8be8f86075ad93df038610d82b3ac6d99329957d",
+      "dirty": false,
+      "workingTreeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "package": {
+      "revision": "82a61523535cf2d934d6e148561030c5cf779893",
+      "dirty": false,
+      "workingTreeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "code-format": {
+      "revision": "82a61523535cf2d934d6e148561030c5cf779893",
+      "dirty": false,
+      "workingTreeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "one-theme": {
+      "revision": "7fbd047a87ecf1367c896b19ff270cdc28d319f7",
+      "dirty": false,
+      "workingTreeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "prettier": {
+      "revision": "efa0abcbf31dd63ca47fa5e5586542fa04d5c235",
+      "dirty": false,
+      "workingTreeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "fixtures": [
+    {
+      "file": "usage/signal.js",
+      "sha256": "d15058eb343625a553f712832ba5db7d502c1f271392087f60abbefbb641834a"
+    }
+  ],
   "images": [
     {
       "file": "demo.png",
       "label": "Source before formatting.",
       "width": 1100,
-      "height": 340
+      "height": 340,
+      "sha256": "d6cb63a1ce0e022bf19763991fa2d989a19784c9ff3521d5574380f4aa8fbdb5"
     },
     {
       "file": "demo-2.png",
       "label": "Source after formatting.",
       "width": 1100,
-      "height": 340
+      "height": 340,
+      "sha256": "9e251f97315e963a069a5473c626f87893f4b589c704d3e810d880e4bba3cbd1"
     }
   ]
 }
