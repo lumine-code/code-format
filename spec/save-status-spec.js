@@ -32,6 +32,32 @@ describe("formatting save status", () => {
     registration.dispose();
     expect(tiles.every((tile) => tile.destroy.calls.count() === 1)).toBe(true);
   });
+  it("observes and renders the initial editor once and retains its subscriptions on a repeat", async () => {
+    const editor = await lumine.workspace.open();
+    lumine.config.set("code-format.showInStatusBar", true);
+    const policy = spyOn(main.policy, "shouldFormat").and.callThrough();
+    const grammar = spyOn(editor, "onDidChangeGrammar").and.callThrough();
+    const path = spyOn(editor, "onDidChangePath").and.callThrough();
+    const statusBar = {
+      addLeftTile: () => ({ destroy() {} }),
+      addRightTile: () => ({ destroy() {} }),
+    };
+    const registration = main.consumeStatusBar(windowService(statusBar));
+    try {
+      const view = main.statusConnections.get(statusBar).view;
+      view.watchEditor(editor);
+      view.watchEditor(editor);
+      expect(policy).toHaveBeenCalledOnceWith(editor);
+      expect(grammar).toHaveBeenCalledTimes(1);
+      expect(path).toHaveBeenCalledTimes(1);
+      expect(view.element.textContent).toBe("Format on Save: Off");
+      observedFiles.setObserved(__filename, true);
+      expect(view.observedView.getElement().textContent).toContain("Formatting (1)");
+    } finally {
+      registration.dispose();
+      editor.destroy();
+    }
+  });
   it("updates the current file after scoped policy and path changes", async () => {
     const editor = await lumine.workspace.open();
     editor.getBuffer().setPath(__filename);
