@@ -32,6 +32,38 @@ describe("formatting save status", () => {
     registration.dispose();
     expect(tiles.every((tile) => tile.destroy.calls.count() === 1)).toBe(true);
   });
+  it("releases an editor observer returned after its synchronous callback retires the view", () => {
+    const SaveStatus = currentPackageRequire(lumine.packages.getActivePackage("code-format"))(
+      "./lib/save-status",
+    );
+    const container = lumine.workspace.getMainWindow().getEditorContainer();
+    const observe = container.observeActiveEmbeddedTextEditor.bind(container);
+    const returned = [];
+    spyOn(container, "observeActiveEmbeddedTextEditor").and.callFake((callback) => {
+      const subscription = observe(callback);
+      spyOn(subscription, "dispose").and.callThrough();
+      returned.push(subscription);
+      return subscription;
+    });
+    class RetiringStatus extends SaveStatus {
+      watchEditor(editor) {
+        super.watchEditor(editor);
+        this.dispose();
+      }
+    }
+    const tile = { destroy: jasmine.createSpy("retired tile") };
+    lumine.config.set("code-format.showInStatusBar", true);
+    const view = new RetiringStatus({ addLeftTile: () => tile }, main.policy, {
+      context: { editorContainer: container },
+      isCurrent: () => true,
+      dispatch() {},
+    });
+    expect(returned.length).toBe(1);
+    expect(returned[0].dispose).toHaveBeenCalledTimes(1);
+    expect(tile.destroy).toHaveBeenCalledTimes(1);
+    view.dispose();
+    expect(returned[0].dispose).toHaveBeenCalledTimes(1);
+  });
   it("observes and renders the initial editor once and retains its subscriptions on a repeat", async () => {
     const editor = await lumine.workspace.open();
     lumine.config.set("code-format.showInStatusBar", true);
