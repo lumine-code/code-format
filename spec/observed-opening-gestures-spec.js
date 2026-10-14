@@ -43,7 +43,7 @@ describe("code-format observed file opening gestures", () => {
   });
 
   afterEach(async () => {
-    leases.dispose();
+    leases?.dispose();
     await list.destroy();
     await lumine.packages.deactivatePackage("open-with");
     await lumine.packages.deactivatePackage("open-external");
