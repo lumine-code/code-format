@@ -45,12 +45,14 @@ describe("format on save window context", () => {
     const editor = await workspace.open();
     editor.getBuffer().setPath(__filename);
     editor.setGrammar(lumine.grammars.nullGrammar);
+    editor.getElement().focus();
     await lumine.packages.activatePackage("language-json");
     const extra = await workspace.openEditorWindow({ show: false });
     const other = workspace.buildTextEditor();
     other.getBuffer().setPath(__filename + ".json");
     other.setGrammar(lumine.grammars.grammarForScopeName("source.json"));
     extra.getEditorContainer().getActivePane().activateItem(other, { activatePane: true });
+    other.getElement().focus();
     const main = lumine.packages.getActivePackage("code-format").mainModule;
     lumine.config.set("code-format.formatOnSave", true, { scopeSelector: ".source.json" });
     main.toggleObserved(other);
@@ -70,16 +72,18 @@ describe("format on save window context", () => {
     expect(command(ownMenu, "toggle-observed").checked).toBe(false);
     expect(command(otherMenu, "toggle-observed").checked).toBe(true);
     const pdfElement = document.createElement("div");
+    pdfElement.tabIndex = -1;
     const item = {
       filePath: __filename.replace(/\.js$/, ".pdf"),
       getTitle: () => "PDF",
       getElement: () => pdfElement,
     };
     mainWindow.getEditorContainer().getActivePane().activateItem(item);
+    pdfElement.focus();
     const noEditorMenu = lumine.contextMenu.templateForElement(
       mainWindow.getElement().querySelector(".code-format-save-status"),
     );
-    expect(command(noEditorMenu, "format-code").keyBindingLabel).toBe("");
+    expect(command(noEditorMenu, "format-code").keyBindingLabel).toBeUndefined();
     expect(command(noEditorMenu, "format-code").enabled).toBe(false);
     expect(command(noEditorMenu, "toggle-format-on-save").checked).toBe(false);
     expect(command(noEditorMenu, "toggle-observed").checked).toBe(false);
@@ -91,6 +95,7 @@ describe("format on save window context", () => {
     const editor = await workspace.open();
     editor.getBuffer().setPath(__filename);
     editor.getElement().classList.add("code-format-user-shortcuts");
+    editor.getElement().focus();
     const commands = ["toggle-format-on-save", "toggle-observed", "list-providers"];
     const userBindings = lumine.keymaps.add("code-format-status-user-shortcuts", {
       "lumine-text-editor.code-format-user-shortcuts:not([mini])": {
@@ -103,6 +108,7 @@ describe("format on save window context", () => {
       const extra = await workspace.openEditorWindow({ show: false });
       const other = workspace.buildTextEditor();
       extra.getEditorContainer().getActivePane().activateItem(other, { activatePane: true });
+      other.getElement().focus();
       expect(workspace.getActiveTextEditor()).toBe(other);
       const menu = (editorWindow) =>
         lumine.contextMenu.templateForElement(
@@ -114,9 +120,10 @@ describe("format on save window context", () => {
       const otherMenu = menu(extra);
       for (const [index, command] of commands.entries()) {
         expect(row(ownMenu, command).keyBindingLabel).toBe("F" + (9 + index));
-        expect(row(otherMenu, command).keyBindingLabel).toBe("");
+        expect(row(otherMenu, command).keyBindingLabel).toBeUndefined();
       }
       const element = document.createElement("div");
+      element.tabIndex = -1;
       const pdf = {
         filePath: __filename + ".pdf",
         getTitle: () => "PDF",
@@ -124,8 +131,9 @@ describe("format on save window context", () => {
       };
       const pane = mainWindow.getEditorContainer().getActivePane();
       pane.activateItem(pdf);
+      element.focus();
       const pdfMenu = menu(mainWindow);
-      for (const command of commands) expect(row(pdfMenu, command).keyBindingLabel).toBe("");
+      for (const command of commands) expect(row(pdfMenu, command).keyBindingLabel).toBeUndefined();
       await pane.destroyItem(pdf);
     } finally {
       userBindings.dispose();
