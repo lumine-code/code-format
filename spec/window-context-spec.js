@@ -62,7 +62,7 @@ describe("format on save window context", () => {
       extra.getElement().querySelector(".code-format-save-status"),
     );
     const command = (items, name) => items.find((item) => item.command === "code-format:" + name);
-    const label = process.platform === "darwin" ? "⌥⌘B" : "Ctrl+Alt+B";
+    const label = process.platform === "darwin" ? "⌘K ⇧C" : "Ctrl+K Shift+C";
     expect(command(ownMenu, "format-code").keyBindingLabel).toBe(label);
     expect(command(otherMenu, "format-code").keyBindingLabel).toBe(label);
     expect(command(ownMenu, "toggle-format-on-save").checked).toBe(false);

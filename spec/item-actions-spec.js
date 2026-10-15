@@ -80,6 +80,13 @@ describe("code-format item actions", () => {
       "Stop formatting the selected file on save and drop it from this list.",
     );
     expect(unobserve.keystrokes).toEqual([process.platform === "darwin" ? "cmd-d" : "ctrl-d"]);
+    // Resolve at the query editor: an ancestor binding loses to select-word.
+    expect(
+      lumine.keymaps.findKeyBindings({
+        target: list.getQueryEditor().getElement(),
+        keystrokes: unobserve.keystrokes[0],
+      })[0]?.command,
+    ).toBe("code-format:unobserve-selected-file");
     expect(unobserve.context).toBe("item");
 
     const clear = byCommand.get("code-format:clear-all-observed-files");
