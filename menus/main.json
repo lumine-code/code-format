@@ -11,7 +11,7 @@
               "command": "code-format:format-code"
             },
             {
-              "label": "List Providers",
+              "label": "Show Formatters",
               "command": "code-format:list-providers"
             },
             {
@@ -19,15 +19,15 @@
               "command": "code-format:toggle-format-on-save"
             },
             {
-              "label": "Toggle Observe Current File",
+              "label": "Toggle Forced Format on Save",
               "command": "code-format:toggle-observed"
             },
             {
-              "label": "Observed Files",
+              "label": "Observed Files…",
               "command": "code-format:observed-files"
             },
             {
-              "label": "Clear All Observed Files",
+              "label": "Stop Observing All Files",
               "command": "code-format:clear-all-observed-files"
             }
           ]
@@ -61,12 +61,12 @@
         "command": "code-format:toggle-format-on-save"
       },
       {
-        "label": "Observe This File",
+        "label": "Always Format This File on Save",
         "type": "checkbox",
         "command": "code-format:toggle-observed"
       },
       {
-        "label": "Observed Files",
+        "label": "Observed Files…",
         "command": "code-format:observed-files"
       },
       {
@@ -82,7 +82,7 @@
         "type": "separator"
       },
       {
-        "label": "Observed Files",
+        "label": "Observed Files…",
         "command": "code-format:observed-files"
       },
       {
