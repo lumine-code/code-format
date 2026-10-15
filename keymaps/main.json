@@ -4,7 +4,7 @@
   },
   ".code-format-observed-files-list lumine-text-editor[mini]": {
     "cmdorctrl-d": "code-format:unobserve-selected-file",
-    "alt-enter": "code-format:open-with",
+    "alt-enter": "code-format:open",
     "ctrl-alt-enter": "code-format:open-external",
     "alt-shift-enter": "code-format:show-in-folder"
   }

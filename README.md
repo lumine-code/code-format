@@ -39,7 +39,7 @@ Commands available in `lumine-workspace`:
 Commands available in `.code-format-observed-files-list`:
 
 - `code-format:open-selected-file`: open the selected observed file,
-- `code-format:open-with`: choose how and where to open the selected observed file,
+- `code-format:open`: choose how and where to open the selected observed file,
 - `code-format:open-external`: open the observed file in the configured external application,
 - `code-format:show-in-folder`: reveal the observed file in the system file manager,
 - `code-format:unobserve-selected-file`: remove the selected file's opt-in.
