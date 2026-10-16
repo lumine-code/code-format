@@ -18,7 +18,7 @@ describe("code-format package assets", () => {
 
     // The pure cmd/ctrl platform split collapses into one cmdorctrl binding.
     const keymap = JSON.parse(read("keymaps/main.json"));
-    expect(keymap["lumine-text-editor:not([mini])"]["cmdorctrl-k shift-c"]).toBe(
+    expect(keymap["lumine-text-editor:not([mini]):not([readonly])"]["cmdorctrl-k shift-c"]).toBe(
       "code-format:format-code",
     );
 
