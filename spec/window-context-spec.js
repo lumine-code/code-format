@@ -1,4 +1,5 @@
 describe("format on save window context", () => {
+  let provider;
   beforeEach(async () => {
     jasmine.useRealClock();
     jasmine.attachToDOM(lumine.workspace.getElement());
@@ -7,6 +8,8 @@ describe("format on save window context", () => {
     lumine.config.set("code-format.showInStatusBar", true);
   });
   afterEach(async () => {
+    provider?.dispose();
+    provider = null;
     await lumine.workspace.discardEditorWindows();
   });
   it("changes the policy for the invoking window's editor instead of another globally active view", async () => {
@@ -31,6 +34,7 @@ describe("format on save window context", () => {
     const other = workspace.buildTextEditor();
     extra.getEditorContainer().getActivePane().activateItem(other, { activatePane: true });
     const main = lumine.packages.getActivePackage("code-format").mainModule;
+    provider = main.manager.addFileProvider({ canFormat: () => true, formatEntireFile() {} });
     const format = spyOn(main.manager, "formatEditor").and.resolveTo(true);
     const resolve = spyOn(main.manager, "resolveEditor").and.callThrough();
     const tile = extra.getElement().querySelector(".code-format-save-status");
@@ -152,6 +156,7 @@ describe("format on save window context", () => {
     workspace.getActivePane().activateItem(item);
     element.appendChild(editor.element);
     const main = lumine.packages.getActivePackage("code-format").mainModule;
+    provider = main.manager.addFileProvider({ canFormat: () => true, formatEntireFile() {} });
     const format = spyOn(main.manager, "formatEditor").and.resolveTo(true);
     await lumine.commands.dispatch(editor.element, "code-format:format-code");
     expect(format).toHaveBeenCalledOnceWith(editor);
