@@ -34,9 +34,10 @@ describe("format on save window context", () => {
     const format = spyOn(main.manager, "formatEditor").and.resolveTo(true);
     const resolve = spyOn(main.manager, "resolveEditor").and.callThrough();
     const tile = extra.getElement().querySelector(".code-format-save-status");
-    await lumine.commands.dispatch(tile, "code-format:format-code");
+    expect(lumine.commands.canDispatch(tile, "code-format:format-code")).toBe(false);
+    await lumine.commands.dispatch(other.element, "code-format:format-code");
     expect(format).toHaveBeenCalledOnceWith(other);
-    await lumine.commands.dispatch(tile, "code-format:list-providers");
+    await lumine.commands.dispatch(other.element, "code-format:list-providers");
     expect(resolve.calls.mostRecent().returnValue).toBe(other);
   });
   it("shows the actual formatting shortcut and policy of the invoking window", async () => {
@@ -149,12 +150,10 @@ describe("format on save window context", () => {
       getActiveEmbeddedTextEditor: () => editor,
     };
     workspace.getActivePane().activateItem(item);
+    element.appendChild(editor.element);
     const main = lumine.packages.getActivePackage("code-format").mainModule;
     const format = spyOn(main.manager, "formatEditor").and.resolveTo(true);
-    await lumine.commands.dispatch(
-      workspace.getMainWindow().getElement().querySelector(".code-format-save-status"),
-      "code-format:format-code",
-    );
+    await lumine.commands.dispatch(editor.element, "code-format:format-code");
     expect(format).toHaveBeenCalledOnceWith(editor);
     workspace.getActivePane().destroyItem(item);
     editor.destroy();

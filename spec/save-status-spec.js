@@ -3,6 +3,7 @@ const currentPackageRequire = require("./helpers/current-package-require");
 describe("formatting save status", () => {
   let main, observedFiles;
   beforeEach(async () => {
+    jasmine.attachToDOM(lumine.workspace.getElement());
     const pack = await lumine.packages.activatePackage("code-format");
     main = pack.mainModule;
     observedFiles = currentPackageRequire(pack)("./lib/observed-files");
@@ -121,6 +122,7 @@ describe("formatting save status", () => {
   it("shows every action and reads each checkbox independently when the menu opens", async () => {
     const tooltips = spyOn(lumine.tooltips, "add").and.callThrough();
     const editor = await lumine.workspace.open();
+    editor.element.focus();
     editor.getBuffer().setPath(__filename);
     lumine.config.set("code-format.showInStatusBar", true);
     let item;
@@ -188,7 +190,7 @@ describe("formatting save status", () => {
     expect(dispatch).not.toHaveBeenCalled();
     expect(observedFiles.isObserved(__filename)).toBe(true);
     items[0].dispatchEvent(new MouseEvent("mousedown", { button: 1, bubbles: true }));
-    expect(dispatch).toHaveBeenCalledOnceWith(items[0], "code-format:format-code");
+    expect(dispatch).toHaveBeenCalledOnceWith(editor.element, "code-format:format-code");
     expect(
       lumine.contextMenu
         .templateForElement(items[1])

@@ -27,12 +27,15 @@ To install `code-format` search for it in the Install pane of the Lumine setting
 
 ## Commands
 
-Commands available in `lumine-workspace`:
+Commands available in `lumine-text-editor:not([mini])`:
 
 - `code-format:format-code`: format the selections or the whole file,
 - `code-format:list-providers`: show registered providers and the preferred formatter,
 - `code-format:toggle-format-on-save`: toggle format on save for the active language,
-- `code-format:toggle-observed`: opt the active file into formatting on save or remove its opt-in,
+- `code-format:toggle-observed`: opt the active file into formatting on save or remove its opt-in.
+
+Commands available in `lumine-workspace`:
+
 - `code-format:observed-files`: show the files opted into formatting on save,
 - `code-format:clear-all-observed-files`: remove every per-file opt-in.
 
