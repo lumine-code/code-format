@@ -1,9 +1,9 @@
 {
   "title": "code-format",
   "description": "Source before formatting.",
-  "recordedOn": "2026-10-14",
-  "sourceRevision": "82a61523535cf2d934d6e148561030c5cf779893",
-  "themeSourceRevision": "7fbd047a87ecf1367c896b19ff270cdc28d319f7",
+  "recordedOn": "2026-10-16",
+  "sourceRevision": "ed6e7396d8be00e643bbc0cdffa556d6979b0eb8",
+  "themeSourceRevision": "828c35ac1816466699effa6f7cf7eedccc930ff9",
   "mode": "normal",
   "fontSettings": "default",
   "scenario": "demo.js",
@@ -11,8 +11,8 @@
   "environment": {
     "platform": "win32",
     "arch": "x64",
-    "electron": "44.7.0",
-    "chrome": "152.0.7977.130",
+    "electron": "44.7.1",
+    "chrome": "152.0.7977.149",
     "devicePixelRatio": 1,
     "locale": "en-GB",
     "fontFamily": "Fira Code, Menlo, DejaVu Sans Mono, Consolas, monospace",
@@ -21,29 +21,30 @@
   },
   "viewport": { "width": 1100, "height": 340 },
   "cornerRadius": 10,
+  "privacy": { "version": 1, "location": "neutral", "textChecked": true },
   "sources": {
     "editor": {
-      "revision": "8be8f86075ad93df038610d82b3ac6d99329957d",
+      "revision": "f8d8badf72a1a2e010c2c5d76306bade6c5fefd0",
       "dirty": false,
       "workingTreeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
     },
     "package": {
-      "revision": "82a61523535cf2d934d6e148561030c5cf779893",
+      "revision": "ed6e7396d8be00e643bbc0cdffa556d6979b0eb8",
       "dirty": false,
       "workingTreeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
     },
     "code-format": {
-      "revision": "82a61523535cf2d934d6e148561030c5cf779893",
+      "revision": "ed6e7396d8be00e643bbc0cdffa556d6979b0eb8",
       "dirty": false,
       "workingTreeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
     },
     "one-theme": {
-      "revision": "7fbd047a87ecf1367c896b19ff270cdc28d319f7",
+      "revision": "828c35ac1816466699effa6f7cf7eedccc930ff9",
       "dirty": false,
       "workingTreeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
     },
     "prettier": {
-      "revision": "efa0abcbf31dd63ca47fa5e5586542fa04d5c235",
+      "revision": "87216c956453d4b8383b0a976b0495a0916ec2e9",
       "dirty": false,
       "workingTreeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
     }
@@ -60,14 +61,14 @@
       "label": "Source before formatting.",
       "width": 1100,
       "height": 340,
-      "sha256": "d6cb63a1ce0e022bf19763991fa2d989a19784c9ff3521d5574380f4aa8fbdb5"
+      "sha256": "a5b062f77ac30e754b1d0a281b1e64bc682b571d085adeb7e878e72cbc04da61"
     },
     {
       "file": "demo-2.png",
       "label": "Source after formatting.",
       "width": 1100,
       "height": 340,
-      "sha256": "9e251f97315e963a069a5473c626f87893f4b589c704d3e810d880e4bba3cbd1"
+      "sha256": "c6ecb7dbb03b170cf956c9335d22ced051626aeb8ee694dcea25e732ea19d20e"
     }
   ]
 }
