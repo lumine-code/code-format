@@ -39,8 +39,15 @@ describe("Formatting read-only editors", () => {
     editor.setReadOnly(true);
     const format = spyOn(main.manager, "formatCommand").and.callThrough();
     lumine.commands.dispatch(editor.getElement(), "code-format:format-code");
-    expect(format).toHaveBeenCalled();
-    await format.calls.mostRecent().returnValue;
+    expect(lumine.commands.canDispatch(editor.element, "code-format:format-code")).toBe(false);
+    expect(lumine.commands.canDispatch(editor.element, "code-format:list-providers")).toBe(true);
+    expect(
+      lumine.keymaps.findKeyBindings({
+        target: editor.element,
+        command: "code-format:format-code",
+      }),
+    ).toEqual([]);
+    expect(format).not.toHaveBeenCalled();
     expect(editor.getText()).toBe("start");
   });
 

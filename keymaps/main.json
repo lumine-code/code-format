@@ -1,5 +1,5 @@
 {
-  "lumine-text-editor:not([mini])": {
+  "lumine-text-editor:not([mini]):not([readonly])": {
     "cmdorctrl-k shift-c": "code-format:format-code"
   },
   ".code-format-observed-files-list lumine-text-editor[mini]": {
