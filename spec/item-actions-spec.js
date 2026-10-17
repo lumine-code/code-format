@@ -64,6 +64,7 @@ describe("code-format item actions", () => {
       "code-format:show-in-folder",
       "code-format:unobserve-selected-file",
       "code-format:clear-all-observed-files",
+      "select-list:toggle-keep-open",
     ]);
 
     const open = byCommand.get("code-format:open-selected-file");
@@ -97,7 +98,7 @@ describe("code-format item actions", () => {
     expect(list.getItemId({ filePath })).toBe(filePath);
   });
 
-  it("keeps only Clear All without a selection and hides it when the source is empty", async () => {
+  it("keeps list actions without a selection and hides Clear All when the source is empty", async () => {
     const filePath = path.join(os.tmpdir(), "code-format-item-actions.js");
     observedFiles.setObserved(filePath, true);
     await observedList.update();
@@ -105,12 +106,29 @@ describe("code-format item actions", () => {
 
     expect(list.getAvailableActions().map((action) => action.command)).toEqual([
       "code-format:clear-all-observed-files",
+      "select-list:toggle-keep-open",
     ]);
 
     observedFiles.clearObserved();
     await observedList.update();
-    expect(list.getAvailableActions()).toEqual([]);
+    expect(list.getAvailableActions().map(({ command }) => command)).toEqual([
+      "select-list:toggle-keep-open",
+    ]);
   });
+
+  for (const keepOpen of [false, true]) {
+    it(`removes the last observed file with keep-open mode ${keepOpen}`, async () => {
+      observedFiles.setObserved(path.join(os.tmpdir(), "last-observed.js"), true);
+      await observedList.show();
+      await list.setKeepOpen(keepOpen);
+
+      await list.runAction("code-format:unobserve-selected-file");
+
+      expect(observedFiles.getObservedCount()).toBe(0);
+      expect(list.getItems()).toEqual([]);
+      expect(observedList.selectListHost.isVisible()).toBe(keepOpen);
+    });
+  }
 
   it("shows the actions as a flow step and runs one against the master list", async () => {
     // Two observed files, so removing one keeps the list open.
