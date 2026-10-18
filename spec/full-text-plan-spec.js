@@ -21,6 +21,25 @@ describe("validated complete format plans", () => {
     edits: editor.getBuffer().getChangesToText(target),
     isCurrent: () => editor.getText() === source,
   });
+
+  it("validates sparse edits through a snapshot without flattening the source", () => {
+    editor.setText("const value = '😀';\n".repeat(1000));
+    const buffer = editor.getBuffer();
+    const read = spyOn(buffer, "getText").and.callThrough();
+    expect(
+      applyEdits(editor, [
+        {
+          oldRange: [
+            [0, 6],
+            [0, 11],
+          ],
+          newText: "answer",
+        },
+      ]),
+    ).toBe(true);
+    expect(read).not.toHaveBeenCalled();
+    expect(buffer.lineForRow(0)).toBe("const answer = '😀';");
+  });
   const registerFile = (provider) => {
     registrations.push(
       main.consumeCodeFormatFile({ grammarScopes: [editor.getGrammar().scopeName], ...provider }),
