@@ -63,7 +63,9 @@ describe("code-format observed file opening gestures", () => {
       relative.startsWith(".." + path.sep)
     )
       throw new Error("Observed fixture escaped its temporary root");
-    fs.rmSync(scratch, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
+    // Keep the renderer event loop available while Windows releases file
+    // handles; synchronous retries can block the remaining teardown work.
+    await fs.promises.rm(scratch, { recursive: true, force: true, maxRetries: 10, retryDelay: 50 });
   });
 
   function rowFor(filePath) {

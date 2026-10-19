@@ -67,6 +67,44 @@ describe("validated complete format plans", () => {
     }
   });
 
+  it("batches multiline edits and preserves CRLF, gap markers and one-step undo", () => {
+    const source = "foo();\r\nbar();\r\ngap();\r\n".repeat(100);
+    editor.setText(source);
+    editor.getBuffer().clearUndoStack();
+    const marker = editor.getBuffer().markRange(
+      [
+        [152, 0],
+        [152, 6],
+      ],
+      { invalidate: "never" },
+    );
+    const layout = spyOn(editor.getBuffer(), "updateDisplayLayersForChange").and.callThrough();
+    expect(
+      applyEdits(
+        editor,
+        Array.from({ length: 100 }, (_, i) => ({
+          oldRange: [
+            [i * 3, 0],
+            [i * 3 + 1, 6],
+          ],
+          newText: "first();\nsecond();\nthird();",
+        })),
+      ),
+    ).toBe(true);
+    expect(editor.getText()).toBe("first();\r\nsecond();\r\nthird();\r\ngap();\r\n".repeat(100));
+    expect(editor.getBuffer().getTextInRange(marker.getRange())).toBe("gap();");
+    expect(layout.calls.count()).toBe(1);
+    editor.undo();
+    expect(editor.getText()).toBe(source);
+    expect(marker.getRange().serialize()).toEqual([
+      [152, 0],
+      [152, 6],
+    ]);
+    editor.redo();
+    expect(editor.getBuffer().getTextInRange(marker.getRange())).toBe("gap();");
+    marker.destroy();
+  });
+
   it("rejects direct formatting of a read-only editor before changing selections", () => {
     editor.setText("foo bar");
     editor.setSelectedBufferRange([
