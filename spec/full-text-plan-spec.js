@@ -22,6 +22,88 @@ describe("validated complete format plans", () => {
     isCurrent: () => editor.getText() === source,
   });
 
+  it("updates layout once for sparse edits and complete plans while preserving undo", () => {
+    const source = "foo bar baz\n".repeat(100);
+    const text = "longer  baz\n".repeat(100);
+    const edits = Array.from({ length: 100 }, (_, row) => [
+      {
+        oldRange: [
+          [row, 0],
+          [row, 3],
+        ],
+        newText: "longer",
+      },
+      {
+        oldRange: [
+          [row, 4],
+          [row, 7],
+        ],
+        newText: "",
+      },
+    ]).flat();
+    const layout = spyOn(editor.getBuffer(), "updateDisplayLayersForChange").and.callThrough();
+    for (const completePlan of [false, true]) {
+      editor.setText(source);
+      editor.getBuffer().clearUndoStack();
+      const marker = editor.getBuffer().markRange(
+        [
+          [50, 8],
+          [50, 11],
+        ],
+        { invalidate: "never" },
+      );
+      layout.calls.reset();
+      expect(
+        applyEdits(editor, completePlan ? { text, edits, isCurrent: () => true } : edits),
+      ).toBe(true);
+      expect(editor.getText()).toBe(text);
+      expect(layout.calls.count()).toBe(1);
+      if (!completePlan) expect(editor.getBuffer().getTextInRange(marker.getRange())).toBe("baz");
+      editor.undo();
+      expect(editor.getText()).toBe(source);
+      editor.redo();
+      expect(editor.getText()).toBe(text);
+      marker.destroy();
+    }
+  });
+
+  it("rejects direct formatting of a read-only editor before changing selections", () => {
+    editor.setText("foo bar");
+    editor.setSelectedBufferRange([
+      [0, 4],
+      [0, 7],
+    ]);
+    editor.setReadOnly(true);
+    expect(
+      applyEdits(editor, [
+        {
+          oldRange: [
+            [0, 0],
+            [0, 3],
+          ],
+          newText: "longer",
+        },
+      ]),
+    ).toBe(false);
+    expect(
+      applyEdits(editor, {
+        text: "longer bar",
+        edits: [
+          {
+            oldRange: [
+              [0, 0],
+              [0, 3],
+            ],
+            newText: "longer",
+          },
+        ],
+        isCurrent: () => true,
+      }),
+    ).toBe(false);
+    expect(editor.getText()).toBe("foo bar");
+    expect(editor.getSelectedText()).toBe("bar");
+  });
+
   it("validates sparse edits through a snapshot without flattening the source", () => {
     editor.setText("const value = '😀';\n".repeat(1000));
     const buffer = editor.getBuffer();
