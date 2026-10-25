@@ -4,6 +4,8 @@ const { Point, Range } = require("lumine");
 describe("validated complete format plans", () => {
   let editor, main, applyEdits, registrations;
   beforeEach(async () => {
+    const textGrammarPackage = await lumine.packages.activatePackage("language-text");
+    await textGrammarPackage.resourceLoadPromise;
     jasmine.useRealClock();
     main = (await lumine.packages.activatePackage(path.resolve(__dirname, ".."))).mainModule;
     // Reacquire the helper from the package generation activated for this test.

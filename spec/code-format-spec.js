@@ -24,6 +24,8 @@ describe("code-format", () => {
   let saveTimeout;
 
   beforeEach(async () => {
+    const textGrammarPackage = await lumine.packages.activatePackage("language-text");
+    await textGrammarPackage.resourceLoadPromise;
     jasmine.useRealClock();
     jasmine.attachToDOM(lumine.views.getView(lumine.workspace));
     lumine.notifications.clear();

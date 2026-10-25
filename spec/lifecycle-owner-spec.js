@@ -5,6 +5,8 @@ describe("Code Format runtime ownership", () => {
   const statusTiles = (bar) =>
     bar.getLeftTiles().filter((tile) => tile.getItem().matches?.(".code-format-save-status"));
   beforeEach(async () => {
+    const textGrammarPackage = await lumine.packages.activatePackage("language-text");
+    await textGrammarPackage.resourceLoadPromise;
     jasmine.useRealClock();
     jasmine.attachToDOM(lumine.workspace.getElement());
     await lumine.packages.activatePackage("status-bar");

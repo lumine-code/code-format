@@ -22,6 +22,8 @@ async function until(predicate) {
 describe("format executor ownership and arbitration", () => {
   let editor, main, registrations, tempDir, filePath;
   beforeEach(async () => {
+    const textGrammarPackage = await lumine.packages.activatePackage("language-text");
+    await textGrammarPackage.resourceLoadPromise;
     jasmine.useRealClock();
     main = (await lumine.packages.activatePackage(path.resolve(__dirname, ".."))).mainModule;
     registrations = [];
@@ -49,6 +51,26 @@ describe("format executor ownership and arbitration", () => {
     return registration;
   };
   const replacement = (text) => [{ oldRange: editor.getBuffer().getRange(), newText: text }];
+
+  it("does not copy text or invoke even a wildcard formatter for None", async () => {
+    const grammar = editor.getGrammar();
+    const format = jasmine.createSpy("format").and.returnValue([]);
+    const canFormat = jasmine.createSpy("eligible").and.returnValue(true);
+    register("consumeCodeFormatFile", {
+      grammarScopes: undefined,
+      canFormat,
+      formatEntireFile: format,
+    });
+    editor.setGrammar(lumine.grammars.nullGrammar);
+    const read = spyOn(editor.getBuffer(), "getText").and.callThrough();
+    expect(await main.manager.formatEditor(editor)).toBeNull();
+    expect(read).not.toHaveBeenCalled();
+    expect(canFormat).not.toHaveBeenCalled();
+    expect(format).not.toHaveBeenCalled();
+    editor.setGrammar(grammar);
+    expect(await main.manager.formatEditor(editor)).toBeTrue();
+    expect(format).toHaveBeenCalledTimes(1);
+  });
 
   it("falls through a declined provider and stops at a successful no-op", async () => {
     const last = jasmine.createSpy("last").and.returnValue(replacement("unexpected\n"));

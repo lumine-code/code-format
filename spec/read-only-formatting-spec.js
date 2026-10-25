@@ -2,6 +2,8 @@ describe("Formatting read-only editors", () => {
   let editor, main, lease;
 
   beforeEach(async () => {
+    const textGrammarPackage = await lumine.packages.activatePackage("language-text");
+    await textGrammarPackage.resourceLoadPromise;
     for (const method of ["openExternal", "openPath", "showItemInFolder", "openApplication"])
       spyOn(lumine.shell, method).and.returnValue(Promise.resolve());
     spyOn(lumine.application, "openWindow").and.returnValue(Promise.resolve());

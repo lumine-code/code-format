@@ -5,10 +5,13 @@ const currentPackageRequire = require("./helpers/current-package-require");
 describe("format-on-save policy", () => {
   let editor, observedFiles, policy;
   beforeEach(async () => {
+    const textGrammarPackage = await lumine.packages.activatePackage("language-text");
+    await textGrammarPackage.resourceLoadPromise;
     const pack = await lumine.packages.activatePackage("code-format");
     observedFiles = currentPackageRequire(pack)("./lib/observed-files");
     policy = pack.mainModule.policy;
     editor = new TextEditor({ buffer: new (require("lumine").TextBuffer)({ text: "source" }) });
+    editor.setGrammar(lumine.grammars.grammarForScopeName("text.plain"));
     editor.getBuffer().setPath(path.resolve("project/src/index.js"));
   });
   afterEach(() => {
@@ -41,7 +44,19 @@ describe("format-on-save policy", () => {
     const filePath = editor.getPath();
     editor.destroy();
     editor = new TextEditor({ buffer: new (require("lumine").TextBuffer)() });
+    editor.setGrammar(lumine.grammars.grammarForScopeName("text.plain"));
     editor.getBuffer().setPath(filePath);
     expect(policy.shouldFormat(editor)).toBe(true);
+  });
+
+  it("suspends global and observed save policies for None without losing the opt-in", () => {
+    const grammar = editor.getGrammar();
+    lumine.config.set("code-format.formatOnSave", true);
+    observedFiles.setObserved(editor.getPath(), true);
+    editor.setGrammar(lumine.grammars.nullGrammar);
+    expect(policy.shouldFormat(editor)).toBeFalse();
+    expect(observedFiles.isObserved(editor.getPath())).toBeTrue();
+    editor.setGrammar(grammar);
+    expect(policy.shouldFormat(editor)).toBeTrue();
   });
 });

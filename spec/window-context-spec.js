@@ -1,6 +1,8 @@
 describe("format on save window context", () => {
   let provider;
   beforeEach(async () => {
+    const textGrammarPackage = await lumine.packages.activatePackage("language-text");
+    await textGrammarPackage.resourceLoadPromise;
     jasmine.useRealClock();
     jasmine.attachToDOM(lumine.workspace.getElement());
     await lumine.packages.activatePackage("status-bar");

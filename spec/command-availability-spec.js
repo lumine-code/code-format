@@ -1,6 +1,8 @@
 describe("Code Format command availability", () => {
   let main, editor, provider;
   beforeEach(async () => {
+    const textGrammarPackage = await lumine.packages.activatePackage("language-text");
+    await textGrammarPackage.resourceLoadPromise;
     jasmine.attachToDOM(lumine.workspace.getElement());
     main = (await lumine.packages.activatePackage("code-format")).mainModule;
     editor = await lumine.workspace.open();

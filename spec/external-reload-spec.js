@@ -9,6 +9,8 @@ describe("On-type formatting across external reloads", () => {
   let main, editor, source, lease;
 
   beforeEach(async () => {
+    const textGrammarPackage = await lumine.packages.activatePackage("language-text");
+    await textGrammarPackage.resourceLoadPromise;
     jasmine.useRealClock();
     main = (await lumine.packages.activatePackage("code-format")).mainModule;
     source = {
