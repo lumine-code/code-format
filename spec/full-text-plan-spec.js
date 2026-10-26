@@ -24,6 +24,22 @@ describe("validated complete format plans", () => {
     isCurrent: () => editor.getText() === source,
   });
 
+  it("validates a complete string plan without flattening the original source", () => {
+    editor.setText("alpha\nbeta\n");
+    const read = spyOn(editor.getBuffer(), "getText").and.throwError("original string read");
+    const result = applyEdits(editor, {
+      text: "ALPHA\nbeta\n",
+      edits: [{ oldRange: new Range([0, 0], [0, 5]), newText: "ALPHA" }],
+      isCurrent: () => true,
+    });
+    expect(result).toBeTrue();
+    expect(read).not.toHaveBeenCalled();
+    read.and.callThrough();
+    expect(editor.getText()).toBe("ALPHA\nbeta\n");
+    editor.undo();
+    expect(editor.getText()).toBe("alpha\nbeta\n");
+  });
+
   it("updates layout once for sparse edits and complete plans while preserving undo", () => {
     const source = "foo bar baz\n".repeat(100);
     const text = "longer  baz\n".repeat(100);

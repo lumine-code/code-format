@@ -87,6 +87,52 @@ describe("format executor ownership and arbitration", () => {
     expect(editor.getBuffer().undo()).toBe(false);
   });
 
+  it("keeps source requests lazy when no formatter reads a full string", async () => {
+    const read = spyOn(editor.getBuffer(), "getText").and.throwError("full source read");
+    expect(await main.manager.formatEditor(editor)).toBe(false);
+    register("consumeCodeFormatFile", {
+      formatEntireFile: (_editor, request) => {
+        expect(request.textSource.slice(0, 3)).toBe("aaa");
+        return [{ oldRange: new Range([0, 0], [0, 3]), newText: "AAA" }];
+      },
+    });
+    expect(await main.manager.formatEditor(editor)).toBe(true);
+    expect(read).not.toHaveBeenCalled();
+    read.and.callThrough();
+    expect(editor.getText()).toBe("AAA bbb ccc\n");
+    editor.undo();
+    expect(editor.getText()).toBe("aaa bbb ccc\n");
+  });
+
+  it("rejects a legacy string-only request before materializing an oversized source", async () => {
+    const { MAX_STRING_LENGTH } = require("node:buffer").constants;
+    const source = { length: MAX_STRING_LENGTH + 1, toString: jasmine.createSpy("materialize") };
+    spyOn(editor.getBuffer(), "getTextSnapshot").and.returnValue(source);
+    register("consumeCodeFormatFile", { formatEntireFile: (_editor, request) => request.text });
+    await expectAsync(main.manager.formatEditor(editor)).toBeRejectedWithError(/single string/);
+    expect(source.toString).not.toHaveBeenCalled();
+    expect(main.manager.operations.size).toBe(0);
+  });
+
+  it("classifies a bulk on-type event without reading lazy text", async () => {
+    const source = { length: 600_000_000 };
+    const change = {
+      oldTextSource: source,
+      newTextSource: source,
+      get oldText() {
+        throw new Error("old string read");
+      },
+      get newText() {
+        throw new Error("new string read");
+      },
+    };
+    expect(
+      await main.manager.formatOnType(editor, {
+        transactions: [{ origin: "edit", changes: [change] }],
+      }),
+    ).toBe(false);
+  });
+
   it("retires a detached editor's formatter through None and resumes before its old result", async () => {
     const detached = lumine.workspace.buildTextEditor();
     detached.setGrammar(editor.getGrammar());

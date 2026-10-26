@@ -4,6 +4,7 @@ Every formatter receives an immutable source snapshot and a cancellation guard.
 
 ```ts
 type FormatRequest = {
+  readonly textSource: TextSnapshot;
   readonly text: string;
   readonly path: string | undefined;
   readonly reason: "manual" | "save" | "type";
@@ -15,6 +16,8 @@ type FormatRequest = {
 ```
 
 Use `request.text` as the input, rather than reading the editor after asynchronous work. `path` and `ranges` describe that same snapshot. Providers compute results without changing the editor; only the hub applies them. `isCurrent()` refuses results after a source, path, grammar, selection, lifecycle, provider-registration or ownership change, or when the editor becomes read-only. `signal` also aborts when another request takes the buffer or the save deadline expires. A stale request is discarded without retrying the user's newer text.
+
+`textSource` is the immutable buffer snapshot, with a UTF-16 `length`, bounded `slice(start, end)`, `charCodeAt(index)` and a `chunks()` iterator. Providers processing large documents should read this source and return range edits. The legacy `text` property materializes and caches a string only when read; documents above the JavaScript string limit throw `ERR_FORMAT_TEXT_TOO_LARGE` before allocation. The hub does not truncate the source or read it merely to discover that no formatter is eligible.
 
 The executor returns `true` for a handled result, `false` when no candidate handles the request and `null` when the operation is cancelled. An explicit command reports a missing formatter only for `false`; cancellation stays quiet.
 
