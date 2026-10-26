@@ -87,6 +87,43 @@ describe("format executor ownership and arbitration", () => {
     expect(editor.getBuffer().undo()).toBe(false);
   });
 
+  it("retires a detached editor's formatter through None and resumes before its old result", async () => {
+    const detached = lumine.workspace.buildTextEditor();
+    detached.setGrammar(editor.getGrammar());
+    detached.setText("detached source\n");
+    const held = deferred();
+    let request;
+    const format = jasmine.createSpy("format").and.callFake((_editor, current) => {
+      if (!request) {
+        request = current;
+        return held.promise;
+      }
+      return [];
+    });
+    register("consumeCodeFormatFile", { formatEntireFile: format });
+    try {
+      let retired = false;
+      const pending = main.manager.formatEditor(detached).then((value) => {
+        retired = true;
+        return value;
+      });
+      await until(() => !!request);
+      const grammar = detached.getGrammar();
+      detached.setGrammar(lumine.grammars.nullGrammar);
+      detached.setGrammar(grammar);
+      for (let index = 0; index < 10; index++) await Promise.resolve();
+      expect(request.signal.aborted).toBeTrue();
+      expect(retired).toBeTrue();
+      expect(await main.manager.formatEditor(detached)).toBeTrue();
+      held.resolve([]);
+      expect(await pending).toBeNull();
+      expect(detached.getText()).toBe("detached source\n");
+    } finally {
+      held.resolve([]);
+      detached.destroy();
+    }
+  });
+
   it("treats an unchanged complete plan as a successful no-op", async () => {
     const fallback = jasmine.createSpy("fallback").and.returnValue(replacement("unexpected\n"));
     register("consumeCodeFormatFile", {
