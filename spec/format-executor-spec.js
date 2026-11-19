@@ -428,6 +428,49 @@ describe("format executor ownership and arbitration", () => {
     expect(editor.getBuffer().undo()).toBe(false);
   });
 
+  it("applies one batch of range edits in one undo step", async () => {
+    editor.setSelectedBufferRanges([new Range([0, 0], [0, 3]), new Range([0, 8], [0, 11])]);
+    const formatCode = jasmine.createSpy("single-range");
+    const formatCodeRanges = jasmine.createSpy("batch").and.callFake((_editor, ranges, request) => {
+      expect(ranges).toBe(request.ranges);
+      expect(request.isCurrent()).toBeTrue();
+      return ranges.map((oldRange) => ({
+        oldRange,
+        newText: editor.getTextInBufferRange(oldRange).toUpperCase(),
+      }));
+    });
+    register("consumeCodeFormatRange", { formatCode, formatCodeRanges });
+    expect(await main.manager.formatEditor(editor)).toBeTrue();
+    expect(formatCodeRanges).toHaveBeenCalledTimes(1);
+    expect(formatCode).not.toHaveBeenCalled();
+    expect(editor.getText()).toBe("AAA bbb CCC\n");
+    editor.undo();
+    expect(editor.getText()).toBe("aaa bbb ccc\n");
+    expect(editor.getBuffer().undo()).toBeFalse();
+  });
+
+  it("distinguishes batch decline from a request to fall back to the same provider", async () => {
+    editor.setSelectedBufferRanges([new Range([0, 0], [0, 3]), new Range([0, 8], [0, 11])]);
+    const declined = jasmine.createSpy("declined single-range").and.returnValue([]);
+    register("consumeCodeFormatRange", {
+      priority: 3,
+      formatCode: declined,
+      formatCodeRanges: () => null,
+    });
+    const formatCode = jasmine.createSpy("single-range").and.returnValue([]);
+    register("consumeCodeFormatRange", {
+      priority: 2,
+      formatCode,
+      formatCodeRanges: () => undefined,
+    });
+    const fallback = jasmine.createSpy("fallback").and.returnValue([]);
+    register("consumeCodeFormatRange", { priority: 1, formatCode: fallback });
+    expect(await main.manager.formatEditor(editor)).toBeTrue();
+    expect(declined).not.toHaveBeenCalled();
+    expect(formatCode).toHaveBeenCalledTimes(2);
+    expect(fallback).not.toHaveBeenCalled();
+  });
+
   it("applies a complete multi-range plan once", async () => {
     editor.setSelectedBufferRanges([new Range([0, 0], [0, 3]), new Range([0, 8], [0, 11])]);
     const formatter = jasmine.createSpy("plan").and.callFake((_editor, _range, request) => {

@@ -25,17 +25,18 @@ Formats selected ranges with their full source context and returns a result.
 
 ```ts
 type TextEdit = { oldRange: Range; newText: string };
+type FormatResult = TextEdit[] | FullTextFormatPlan | null | undefined;
 type RangeFormatProvider = {
   formatCode(
     editor: TextEditor,
     range: Range,
     request: FormatRequest,
-  ):
-    | Promise<TextEdit[] | FullTextFormatPlan | null | undefined>
-    | TextEdit[]
-    | FullTextFormatPlan
-    | null
-    | undefined;
+  ): FormatResult | Promise<FormatResult>;
+  formatCodeRanges?(
+    editor: TextEditor,
+    ranges: readonly Range[],
+    request: FormatRequest,
+  ): FormatResult | Promise<FormatResult>;
   grammarScopes?: string[];
   canFormat?(editor: TextEditor, request: FormatRequest): boolean | Promise<boolean>;
   priority?: number;
@@ -70,7 +71,9 @@ module.exports = {
 
 ## Behavior
 
-When several ranges are selected, a provider returning edit arrays is invoked for each range against the same original snapshot. Answers are collected before applying; identical expansion edits are deduplicated and conflicting overlaps are rejected atomically. No intermediate edit can shift a later request's coordinates.
+For multiple selections, the hub first calls `formatCodeRanges` if the provider implements it. The method receives all ranges in original buffer coordinates and can return one edit array or complete plan. Return `undefined` to use the same provider's `formatCode` for each range, or `null` to let the next provider try. An empty array handles the request without changes.
+
+On the per-range path, each call uses the same original snapshot. The hub collects all answers before applying edits, removes identical expansion edits and rejects conflicting overlaps atomically.
 
 A provider may instead return a [complete formatting plan](format-plans.md) on the first invocation. That plan accounts for every range in `request.ranges`; the hub applies it once and does not invoke the provider again for the remaining ranges. Both result forms land as one undo step.
 
